@@ -1,0 +1,67 @@
+{
+    "name": "generator-jhipster-react-mobx",
+    "version": "0.0.0",
+    "description": "React blueprint with Mobx for state management",
+    "keywords": [
+        "yeoman-generator",
+        "jhipster-blueprint",
+        "jhipster-5",
+        "React",
+        "Twitter Bootstrap",
+        "Webpack",
+        "Mobx"
+    ],
+    "homepage": "https://github.com/erkieh/generator-jhipster-react-mobx",
+    "author": {
+        "name": "Erki Ehtla",
+        "email": "erki.public@gmail.com",
+        "url": "https://github.com/erkieh"
+    },
+    "files": [
+        "generators"
+    ],
+    "main": "generators/app/index.js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/erkieh/generator-jhipster-react-mobx.git"
+    },
+    "dependencies": {
+        "chalk": "4.0.0",
+        "generator-jhipster": "6.8.0",
+        "glob": "7.1.6",
+        "lodash": "4.17.15",
+        "mkdirp": "1.0.4",
+        "randexp": "0.5.3"
+    },
+    "devDependencies": {
+        "ejs-lint": "0.3.0",
+        "eslint": "6.8.0",
+        "eslint-config-airbnb-base": "14.0.0",
+        "eslint-config-prettier": "6.1.0",
+        "eslint-plugin-import": "2.20.2",
+        "eslint-plugin-prettier": "3.1.0",
+        "fs-extra": "^9.0.0",
+        "mocha": "7.1.1",
+        "prettier": "1.19.1",
+        "yeoman-assert": "3.1.1",
+        "yeoman-test": "2.4.1"
+    },
+    "scripts": {
+        "prettier:format": "prettier --write \"{,**/}*.{js,json,md,yml,java}\"",
+        "lint": "npm run eslint && npm run ejs-lint",
+        "lint-fix": "npm run prettier:format && npm run eslint -- --fix",
+        "eslint": "eslint .",
+        "ejs-lint": "npm run test:unit -- test/ejslint.js",
+        "pretest": "npm run lint",
+        "test": "npm run test:unit -- test/**/*.spec.js test/*.spec.js --no-insight",
+        "test:unit": "mocha --timeout 30000 --slow 0 --reporter spec",
+        "release": "git push && git push --tags && npm publish",
+        "release:patch": "npm version patch -a -m \"Update to %s\" && npm run release",
+        "release:minor": "npm version minor -a -m \"Update to %s\" && npm run release",
+        "release:major": "npm version major -a -m \"Update to %s\" && npm run release"
+    },
+    "license": "Apache-2.0",
+    "bugs": {
+        "url": "https://github.com/erkieh/generator-jhipster-react-mobx/issues"
+    }
+}

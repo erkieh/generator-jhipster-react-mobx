@@ -1,0 +1,97 @@
+<%#
+ Copyright 2013-2018 the original author or authors from the JHipster project.
+
+ This file is part of the JHipster project, see https://www.jhipster.tech/
+ for more information.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-%>
+import { LoadingBarStore } from 'app/shared/stores/loading-bar.store';
+<%_ if (enableTranslation) { _%>
+import { LocaleStore } from 'app/shared/stores/locale.store';
+<%_ } _%>
+import { AuthStore } from 'app/shared/stores/authentication.store';
+import { ApplicationProfileStore } from 'app/shared/stores/application-profile.store';
+import { AdministrationStore } from 'app/modules/administration/administration.store';
+<%_ if (!skipUserManagement) { _%>
+import { UserStore } from 'app/modules/administration/user-management/user.store';
+<%_ } if (authenticationType === 'oauth2') { _%>
+import { UserStore } from 'app/shared/stores/user.store';
+<%_ } _%>
+<%_ if (authenticationType !== 'oauth2') { _%>
+import { RegisterStore } from 'app/modules/account/register/register.store';
+import { ActivateStore } from 'app/modules/account/activate/activate.store';
+import { PasswordStore } from 'app/modules/account/password/password.store';
+import { PasswordResetStore } from 'app/modules/account/password-reset/password-reset.store';
+import { SettingsStore } from 'app/modules/account/settings/settings.store';
+<%_ if (authenticationType === 'session') { _%>
+import { SessionsStore } from 'app/modules/account/sessions/sessions.store';
+<%_ } _%>
+<%_ } _%>
+import { History } from 'history';
+import { RouterStore } from './router.store';
+/* jhipster-needle-add-store-import - JHipster will add store here */
+
+export interface IRootStore {
+  readonly loadingStore: LoadingBarStore;
+<%_ if (enableTranslation) { _%>
+  readonly localeStore: LocaleStore;
+<%_ } _%>
+  readonly authStore: AuthStore;
+  readonly profileStore: ApplicationProfileStore;
+  readonly adminStore: AdministrationStore;
+<%_ if (!skipUserManagement || authenticationType === 'oauth2') { _%>
+  readonly userStore: UserStore;
+<%_ } _%>
+<%_ if (!skipUserManagement) { _%>
+  readonly registerStore: RegisterStore;
+  readonly activateStore: ActivateStore;
+  readonly passwordStore: PasswordStore;
+  readonly passwordResetStore: PasswordResetStore;
+  readonly settingsStore: SettingsStore;
+<%_ if (authenticationType === 'session') { _%>
+  readonly sessionStore: SessionsStore;
+<%_ } _%>
+<%_ } _%>
+  readonly routerStore: RouterStore;
+/* jhipster-needle-add-store-field - JHipster will add store here */
+}
+
+export function createStores(history: History): IRootStore {
+  const rootStore = {} as any;
+
+  rootStore.loadingStore = new LoadingBarStore();
+  <%_ if (enableTranslation) { _%>
+  rootStore.localeStore = new LocaleStore();
+  <%_ } _%>
+  rootStore.authStore = new AuthStore(rootStore);
+  rootStore.profileStore = new ApplicationProfileStore(rootStore);
+  rootStore.adminStore = new AdministrationStore(rootStore);
+  <%_ if (!skipUserManagement || authenticationType === 'oauth2') { _%>
+  rootStore.userStore = new UserStore(rootStore);
+  <%_ } _%>
+  <%_ if (!skipUserManagement) { _%>
+  rootStore.registerStore = new RegisterStore(rootStore);
+  rootStore.activateStore = new ActivateStore(rootStore);
+  rootStore.passwordStore = new PasswordStore(rootStore);
+  rootStore.passwordResetStore = new PasswordResetStore(rootStore);
+  rootStore.settingsStore = new SettingsStore(rootStore);
+  <%_ if (authenticationType === 'session') { _%>
+  rootStore.sessionStore = new SessionsStore(rootStore);
+  <%_ } _%>
+  <%_ } _%>
+  rootStore.routerStore = new RouterStore(history);
+  /* jhipster-needle-add-store-init - JHipster will add store here */
+  return rootStore;
+}
+

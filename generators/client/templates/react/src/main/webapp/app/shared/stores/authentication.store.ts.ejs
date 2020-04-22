@@ -1,0 +1,242 @@
+<%#
+ Copyright 2013-2018 the original author or authors from the JHipster project.
+
+ This file is part of the JHipster project, see https://www.jhipster.tech/
+ for more information.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-%>
+import { action, observable } from 'mobx';
+import axios, { AxiosResponse } from 'axios';
+import BaseStore from 'app/shared/util/base-store';
+<%_ if (authenticationType === 'jwt' || enableTranslation) { _%>
+import { Storage } from 'react-jhipster';
+<%_ } _%>
+
+export const AUTH_TOKEN_KEY = '<%= jhiPrefixDashed %>-authenticationToken';
+
+export const hasAnyAuthority = (authorities: string[], hasAnyAuthorities: string[]) => {
+if (authorities && authorities.length !== 0) {
+if (hasAnyAuthorities.length === 0) {
+return true;
+}
+return hasAnyAuthorities.some(auth => authorities.includes(auth));
+}
+return false;
+};
+
+export class AuthStore extends BaseStore {
+    @observable public isAuthenticated = false;
+    @observable public account: any = {};
+    @observable public redirectMessage: string = null;
+    @observable public sessionHasBeenFetched = false;
+    @observable public idToken: string = null;
+    @observable public logoutUrl: string = null;
+    <%_ if (authenticationType !== 'oauth2') { _%>
+    @observable public loginSuccess = false;
+    @observable public loginError = false; // Errors returned from server side
+    @observable public showModalLogin = false;
+    <%_ } _%>
+
+    @action
+    getSession = this.readHandler(this.getSessionGen);
+
+<%_ if (authenticationType !== 'oauth2') { _%>
+    @action
+    login = this.readHandler(this.loginGen);
+<%_ } _%>
+
+<%_ if (authenticationType !== 'jwt') { _%>
+    @action
+    logout = this.readHandler(this.logoutGen);
+<%_ } _%>
+
+    @action.bound
+    reset = this.resetBase;
+
+    resetBase() {
+      this.isAuthenticated = false;
+      this.account = {};
+      this.redirectMessage = null;
+      this.sessionHasBeenFetched = false;
+      this.idToken = null;
+      this.logoutUrl = null;
+<%_ if (authenticationType !== 'oauth2') { _%>
+      this.loginSuccess = false;
+      this.loginError = false; // Errors returned from server side
+      this.showModalLogin = false;
+<%_ } _%>
+      this.loading = false;
+      this.errorMessage = null;
+      this.updating = false;
+      this.updateSuccess = false;
+    }
+
+    @action.bound
+    displayAuthError(message) {
+<%_ if (authenticationType !== 'oauth2') { _%>
+    this.showModalLogin = true;
+<%_ } _%>
+        this.redirectMessage = message;
+    }
+
+    @action.bound
+    clearAuthentication(messageKey) {
+        <%_ if (authenticationType == 'jwt') { _%>
+        this.clearAuthToken();
+        <%_ } _%>
+        this.displayAuthError(messageKey);
+
+        this.loading = false;
+<%_ if (authenticationType !== 'oauth2') { _%>
+        this.showModalLogin = true;
+<%_ } _%>
+        this.isAuthenticated = false;
+    }
+
+<%_ if (authenticationType === 'jwt') { _%>
+    @action.bound
+    clearAuthToken() {
+        if (Storage.local.get(AUTH_TOKEN_KEY)) {
+            Storage.local.remove(AUTH_TOKEN_KEY);
+        }
+        if (Storage.session.get(AUTH_TOKEN_KEY)) {
+            Storage.session.remove(AUTH_TOKEN_KEY);
+        }
+    }
+
+    @action.bound
+    logout() {
+        this.reset();
+        this.clearAuthToken();
+        this.showModalLogin = true;
+    }
+<%_ } else if (authenticationType === 'uaa') { _%>
+  *logoutGen(username, password, rememberMe = false) {
+    try {
+      const result: AxiosResponse = yield axios.post('/auth/logout', {});
+      yield this.getSession();
+      this.showModalLogin = true;
+      return result;
+    } catch (e) {
+      this.errorMessage = e.message;
+      throw e;
+    }
+  }
+<%_ } else { _%>
+  *logoutGen(username, password, rememberMe = false) {
+    try {
+      const result: AxiosResponse = yield axios.post('/api/logout', {});
+      yield this.getSession();
+<%_ if (authenticationType !== 'oauth2') { _%>
+      this.showModalLogin = true;
+<%_ } else { _%>
+      this.idToken = result.data.idToken,
+      this.logoutUrl = result.data.logoutUrl
+<%_ } _%>
+      return result;
+    } catch (e) {
+      this.errorMessage = e.message;
+      throw e;
+    }
+  }
+<%_ } _%>
+
+    *getSessionGen() {
+        try {
+            const result: AxiosResponse = yield axios.get('/api/account');
+            this.account = result.data;
+            this.isAuthenticated = result.data && result.data.activated;
+            this.sessionHasBeenFetched  = true;
+<%_ if (enableTranslation) { _%>
+            if (this.account && this.account.langKey) {
+                const langKey = Storage.session.get('locale', this.account.langKey);
+                this.rootStore.localeStore.setLocale(langKey);
+            }
+<%_ } _%>
+            return result;
+        } catch (e) {
+            this.isAuthenticated = false;
+            this.sessionHasBeenFetched  = true;
+<%_ if (authenticationType !== 'oauth2') { _%>
+            this.showModalLogin = true;
+<%_ } _%>
+            this.errorMessage = e.message;
+            throw e;
+        }
+    }
+<%_ if (authenticationType === 'session') { _%>
+
+  *loginGen(username, password, rememberMe = false) {
+    try {
+      const data = `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&remember-me=${rememberMe}&submit=Login`;
+      const result: AxiosResponse = yield axios.post('/api/authentication', data, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+      yield this.getSession();
+      this.loginError = false;
+      this.showModalLogin = false;
+      this.loginSuccess = true;
+      return result;
+    } catch (e) {
+      this.reset();
+      this.loginError = true;
+      this.showModalLogin = true;
+      this.errorMessage = e.message;
+      throw e;
+    }
+  }
+<%_ } else if (authenticationType === 'jwt') { _%>
+
+    *loginGen(username, password, rememberMe = false) {
+        try {
+            const result: AxiosResponse = yield axios.post('/api/authenticate', { username, password, rememberMe });
+            const bearerToken = result.headers.authorization;
+            if (bearerToken && bearerToken.slice(0, 7) === 'Bearer ') {
+                const jwt = bearerToken.slice(7, bearerToken.length);
+                if (rememberMe) {
+                    Storage.local.set(AUTH_TOKEN_KEY, jwt);
+                } else {
+                    Storage.session.set(AUTH_TOKEN_KEY, jwt);
+                }
+            }
+            yield this.getSession();
+            this.loginError = false;
+            this.showModalLogin = false;
+            this.loginSuccess = true;
+            return result;
+        } catch (e) {
+            this.reset();
+            this.loginError = true;
+            this.showModalLogin = true;
+            this.errorMessage = e.message;
+            throw e;
+        }
+    }
+<%_ } else if (authenticationType === 'uaa') { _%>
+
+  *loginGen(username, password, rememberMe = false) {
+    try {
+      const result: AxiosResponse = yield axios.post('/auth/login', { username, password });
+      yield this.getSession();
+      return result;
+    } catch (e) {
+      this.reset();
+      this.loginError = true;
+      this.showModalLogin = true;
+      this.errorMessage = e.message;
+      throw e;
+    }
+  }
+<%_ } _%>
+}
+
+export default AuthStore;

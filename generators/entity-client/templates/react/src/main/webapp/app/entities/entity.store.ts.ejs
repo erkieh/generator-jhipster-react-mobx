@@ -1,0 +1,75 @@
+<%#
+ Copyright 2013-2018 the original author or authors from the JHipster project.
+
+ This file is part of the JHipster project, see https://www.jhipster.tech/
+ for more information.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-%>
+<%_
+let storeClass;
+let storeClassFile;
+if (pagination === 'infinite-scroll') {
+  storeClass = 'InfiniteScrollCrudStore';
+  storeClassFile = 'app/shared/util/infinite-scroll-crud-store';
+} else if (pagination === 'no') {
+  storeClass = 'CrudStore';
+  storeClassFile = 'app/shared/util/crud-store';
+} else {
+  storeClass = 'PaginationCrudStore';
+  storeClassFile = 'app/shared/util/pagination-crud-store';
+}
+_%>
+import { I<%= entityReactName %> } from 'app/shared/model/<%= entityModelFileName %>.model';
+import {IRootStore} from "app/shared/stores";
+<%_ if (fieldsContainBlob) { _%>
+import { action } from 'mobx';
+<%_ } _%>
+import axios from 'axios';
+import <%= storeClass %> from '<%= storeClassFile %>';
+<%_ if (searchEngine === 'elasticsearch') { _%>
+import { ICrudSearchAction } from 'app/shared/util/jhipster-types';
+<%_ } _%>
+import { SERVER_API_URL } from 'app/config/constants';
+
+const apiUrl = <% if (applicationType === 'gateway' && locals.microserviceName) { %>'/<%= microserviceName.toLowerCase() %><% } else if (authenticationType === 'uaa') { %>'<% } else { %>SERVER_API_URL + '<% } %>/api/<%= entityApiUrl %>';
+<%_ if (searchEngine === 'elasticsearch') { _%>
+const apiSearchUrl = <% if (applicationType === 'gateway' && locals.microserviceName) { %>'/<%= microserviceName.toLowerCase() %>/<% } else if (authenticationType === 'uaa') { %>'<% } else { %>SERVER_API_URL + '<% } %>/api/_search/<%= entityApiUrl %>';
+<%_ } _%>
+
+export class <%= entityReactName %>Store extends <%= storeClass %><I<%= entityReactName %>> {
+  <%_ if (searchEngine === 'elasticsearch') { _%>
+  getSearchEntities: ICrudSearchAction<I<%= entityReactName %>> = this.readHandler(this.getSearch);
+  <%_ } _%>
+  constructor(protected rootStore: IRootStore) {
+    super(rootStore, apiUrl);
+  }
+  <%_ if (searchEngine === 'elasticsearch') { _%>
+  *getSearch(query, page, size, sort) {
+    <%_ if (pagination !== 'no') { _%>
+    return yield axios.get<I<%= entityReactName %>[]>(`${apiSearchUrl}?query=${query}${sort ? `&page=${page}&size=${size}&sort=${sort}` : ''}`);
+    <%_ } else { _%>
+    return yield axios.get<I<%= entityReactName %>[]>(`${apiSearchUrl}?query=${query}`);
+    <%_ } _%>
+  }
+  <%_ } _%>
+  <%_ if (fieldsContainBlob) { _%>
+  @action.bound
+  setBlob(name: string, dataBase64: string, contentType?: string) {
+    this.entity[name] = dataBase64;
+    this.entity[name + 'ContentType'] = contentType;
+  }
+  <%_ } _%>
+  }
+
+export default <%= entityReactName %>Store;

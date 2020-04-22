@@ -1,0 +1,158 @@
+<%#
+ Copyright 2020 Erki Ehtla
+
+ Licensed under the Apache License, Version 2.0 the "License";
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-%>
+
+import { action, observable<% if (websocket === 'spring-websocket') { %>, reaction<% } %> } from 'mobx';
+import axios, { AxiosResponse } from 'axios';
+import BaseStore from 'app/shared/util/base-store';
+<%_ if (websocket === 'spring-websocket') { _%>
+import {IRootStore} from "app/shared/stores";
+import * as webSocketUtils from 'app/config/websocket-middleware';
+<%_ } _%>
+export class AdministrationStore extends BaseStore {
+    @observable public gateway = {
+        routes: []
+    };
+    @observable public logs = {
+        loggers: [] as any[]
+    };
+    @observable public health: any = {};
+    @observable public metrics: any = {};
+    @observable public threadDump = [];
+    @observable public configuration = {
+        configProps: {} as any,
+        env: {} as any
+    };
+    @observable public audits = [];
+    @observable public totalItems = 0;
+<%_ if (websocket === 'spring-websocket') { _%>
+    @observable public tracker = { activities: [] };
+<%_ } _%>
+
+    @action
+    gatewayRoutes = this.readHandler(this.gateRoutes);
+
+    @action
+    systemHealth = this.readHandler(this.sysHealth);
+
+    @action
+    systemMetrics = this.readHandler(this.sysMetrics);
+
+    @action
+    systemThreadDump = this.readHandler(this.sysThreadDump);
+
+    @action
+    getLoggers = this.readHandler(this.loggers);
+
+    @action
+    changeLogLevel = this.updateHandler(this.changeLogLev);
+
+    @action
+    getConfigurations = this.readHandler(this.getConf);
+
+    @action
+    getEnv = this.readHandler(this.getEnvir);
+
+    @action
+    getAudits = this.readHandler(this.getAudit);
+<%_ if (websocket === 'spring-websocket') { _%>
+
+    constructor(protected rootStore: IRootStore) {
+      super(rootStore);
+      reaction(() => rootStore.authStore.isAuthenticated, isAuthenticated => {
+        if (isAuthenticated) {
+          webSocketUtils.connect();
+          if (!webSocketUtils.alreadyConnectedOnce) {
+            webSocketUtils.receive().subscribe(newActivity => {
+              // filter out activities from the same session
+              const uniqueActivities = this.tracker.activities.filter(activity => activity.sessionId !== newActivity.sessionId);
+              // remove any activities with the page of logout
+              this.tracker.activities = [...uniqueActivities, newActivity].filter(activity => activity.page !== 'logout');
+            });
+          }
+        } else {
+          webSocketUtils.unsubscribe();
+          webSocketUtils.disconnect();
+        }
+      });
+    }
+<%_ } _%>
+
+    // Actions
+    *gateRoutes() {
+        const result: AxiosResponse = yield axios.get('/api/gateway/routes');
+        this.gateway.routes = result.data;
+        return result;
+    }
+
+    *sysHealth() {
+        const result: AxiosResponse = yield axios.get('/management/health');
+        this.health = result.data;
+        return result;
+    }
+
+    *sysMetrics() {
+        const result: AxiosResponse = yield axios.get('/management/jhimetrics');
+        this.metrics = result.data;
+        return result;
+    }
+
+    *sysThreadDump() {
+        const result: AxiosResponse = yield axios.get('/management/threaddump');
+        this.threadDump = result.data;
+        return result;
+    }
+
+    *loggers() {
+        const result: AxiosResponse = yield axios.get('/management/loggers');
+        this.logs.loggers = result.data.loggers;
+        return result;
+    }
+
+    *changeLogLev(name, configuredLevel) {
+        const body = { configuredLevel };
+        const result: AxiosResponse = yield axios.post('/management/loggers/' + name, body);
+        yield* this.loggers();
+        return result;
+    }
+
+    *getConf() {
+        const result: AxiosResponse = yield axios.get('/management/configprops');
+        this.configuration.configProps = result.data;
+        return result;
+    }
+
+    *getEnvir() {
+        const result: AxiosResponse = yield axios.get('/management/env');
+        this.configuration.env = result.data;
+        return result;
+    }
+
+    *getAudit(page, size, sort, fromDate, toDate) {
+        let requestUrl = `/management/audits${sort ? `?page=${page}&size=${size}&sort=${sort}` : ''}`;
+        if (fromDate) {
+            requestUrl += `&fromDate=${fromDate}`;
+        }
+        if (toDate) {
+            requestUrl += `&toDate=${toDate}`;
+        }
+        const result: AxiosResponse = yield axios.get(requestUrl);
+        this.audits = result.data;
+        this.totalItems = result.headers['x-total-count'];
+        return result;
+    }
+}
+
+export default AdministrationStore;

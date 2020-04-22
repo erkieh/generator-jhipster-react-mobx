@@ -1,0 +1,60 @@
+<%#
+ Copyright 2020 Erki Ehtla
+
+ Licensed under the Apache License, Version 2.0 the "License";
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-%>
+
+import axios, { AxiosResponse } from 'axios';
+
+import { createStores } from 'app/shared/stores';
+import * as operationHandler from 'app/shared/util/operation-handler';
+import { part } from '../../../utils';
+import SettingsStore from 'app/modules/account/settings/settings.store';
+
+jest.mock('axios');
+const axiosMock = axios as jest.Mocked<typeof axios>;
+
+describe('Settings store tests', () => {
+  describe('Common tests', () => {
+    it('should use operationHandler', () => {
+      const operationHandlerSpy = jest.spyOn(operationHandler, 'handleOperation');
+      const store = new SettingsStore(null);
+      expect(operationHandlerSpy).toHaveBeenLastCalledWith(store, store.saveAccountSettingsGen, expect.any(Function));
+    });
+  });
+
+  describe('Actions', () => {
+    let store;
+
+    beforeEach(() => {
+      const rootStore = createStores(null);
+      store = new SettingsStore(rootStore as any);
+      jest.clearAllMocks();
+    });
+
+    it('saveAccountSettingsGen should post and call get session', function*() {
+      const axiosResponse = part<AxiosResponse>({ data: new Object() });
+      axiosMock.post.mockResolvedValueOnce(axiosResponse);
+      store.rootStore.authStore.getSession = jest.fn().mockResolvedValueOnce(null);
+      const result = yield store.saveAccountSettingsGen('acc');
+      expect(axiosMock.post).toBeCalledWith('/api/account', 'acc');
+      expect(store.rootStore.authStore.getSession).toBeCalledTimes(1);
+      expect(result).toBe(axiosResponse);
+    });
+
+    it('reset should call resetBase', function() {
+      jest.spyOn(store, 'resetBase');
+      store.reset();
+    });
+  });
+});

@@ -1,0 +1,72 @@
+<%#
+ Copyright 2020 Erki Ehtla
+
+ Licensed under the Apache License, Version 2.0 the "License";
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-%>
+
+import axios, { AxiosResponse } from 'axios';
+import { TranslatorContext } from 'react-jhipster';
+import { LocaleStore } from 'app/shared/stores';
+import { part } from '../../utils';
+
+jest.mock('react-jhipster');
+jest.mock('axios');
+
+const axiosMock = axios as jest.Mocked<typeof axios>;
+
+describe('Locale store tests', () => {
+  let store: LocaleStore;
+
+  beforeEach(() => {
+    store = new LocaleStore();
+    jest.clearAllMocks();
+  });
+
+  it('should return the correct initial state', () => {
+    expect(store.currentLocale).toBeUndefined();
+  });
+
+  it('should correctly set the locale first time', async () => {
+    const data = new Object();
+    axiosMock.get.mockResolvedValueOnce(
+      part<AxiosResponse>({ data })
+    );
+    await store.setLocale('en');
+    expect(axiosMock.get).toBeCalledWith(`i18n/en.json?buildTimestamp=${process.env.BUILD_TIMESTAMP}`, { baseURL: '' });
+    expect(TranslatorContext.registerTranslations).toBeCalledWith('en', data);
+    expect(TranslatorContext.setLocale).toBeCalledWith('en');
+    expect(store.currentLocale).toBe('en');
+  });
+
+  it('should correctly detect update in current locale state', async () => {
+    const data = new Object();
+    axiosMock.get.mockResolvedValueOnce(
+      part<AxiosResponse>({ data })
+    );
+    store.currentLocale = 'en';
+    await store.setLocale('es');
+    expect(axiosMock.get).toBeCalledWith(`i18n/es.json?buildTimestamp=${process.env.BUILD_TIMESTAMP}`, { baseURL: '' });
+    expect(TranslatorContext.registerTranslations).toBeCalledWith('es', data);
+    expect(store.currentLocale).toBe('es');
+    expect(TranslatorContext.setLocale).toBeCalledWith('es');
+  });
+
+  it('should not make http request when translations are in the context', async () => {
+    TranslatorContext.context = part<typeof TranslatorContext.context>({ translations: { en: {} } });
+    store.currentLocale = 'en';
+    await store.setLocale('en');
+    expect(axiosMock.get).toHaveBeenCalledTimes(0);
+    expect(TranslatorContext.registerTranslations).toHaveBeenCalledTimes(0);
+    expect(store.currentLocale).toBe('en');
+  });
+});

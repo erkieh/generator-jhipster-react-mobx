@@ -1,0 +1,67 @@
+<%#
+ Copyright 2020 Erki Ehtla
+
+ Licensed under the Apache License, Version 2.0 the "License";
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-%>
+
+import { action, observable } from 'mobx';
+import axios, { AxiosResponse } from 'axios';
+import BaseStore from 'app/shared/util/base-store';
+import {IRootStore} from "app/shared/stores";
+
+const apiUrl = '/api/account/sessions/';
+
+export class SessionsStore extends BaseStore {
+  @observable public sessions: ReadonlyArray<any>;
+  @observable public updateFailure: boolean;
+
+  @action
+  findAll = this.readHandler(this.findAllGen);
+
+  @action
+  invalidateSession = this.updateHandler(this.invalidateSessionGen);
+
+  constructor(rootStore: IRootStore) {
+    super(rootStore);
+    this.reset();
+  }
+
+  reset() {
+    this.loading = false;
+    this.sessions = [];
+    this.updateSuccess = false;
+    this.updateFailure = false;
+  }
+
+  * findAllGen(page, size, sort) {
+    const result: AxiosResponse = yield axios.get(
+      apiUrl);
+    this.sessions = result.data;
+    return result;
+  }
+
+  * invalidateSessionGen(series) {
+    try {
+      this.loading = true;
+      const result: AxiosResponse = yield axios.delete(`${apiUrl}${series}`);
+      this.loading = false;
+      return result;
+    } catch (e) {
+      this.loading = false;
+      this.updateFailure = true;
+      throw e;
+    }
+  }
+}
+
+export default SessionsStore;

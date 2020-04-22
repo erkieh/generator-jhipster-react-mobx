@@ -1,0 +1,10 @@
+{
+    "generator-jhipster-blueprint": {
+        "promptValues": {
+            "githubName": "erkieh",
+            "authorName": "Erki Ehtla",
+            "authorEmail": "erki.public@gmail.com",
+            "authorUrl": ""
+        }
+    }
+}

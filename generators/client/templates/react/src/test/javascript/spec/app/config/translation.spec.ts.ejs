@@ -1,0 +1,11 @@
+import { registerLocale } from 'app/config/translation';
+
+describe('Translation', () => {
+  describe('registerLocale', () => {
+    it('set Locale is called', () => {
+      const store = { setLocale: jest.fn() };
+      registerLocale(store);
+      expect(store.setLocale).toBeCalledWith('en');
+    });
+  });
+});
