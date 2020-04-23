@@ -86,7 +86,7 @@ mkdir my-app && cd my-app
 npm link generator-jhipster-react-mobx
 npm link generator-jhipster (Optional: Needed only if you are using a non-released JHipster version)
 
-jhipster -d --blueprint jhipster-react-mobx
+jhipster -d --blueprint generator-jhipster-react-mobx
 
 ```
 
