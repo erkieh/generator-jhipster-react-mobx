@@ -50,7 +50,7 @@ yarn global upgrade generator-jhipster-react-mobx
 To use this blueprint, run the below command
 
 ```bash
-jhipster --blueprint jhipster-react-mobx
+jhipster --blueprint react-mobx
 ```
 
 ## Running local Blueprint version for development
@@ -62,7 +62,7 @@ During development of blueprint, please note the below steps. They are very impo
 Note: If you do not want to link the blueprint(step 3) to each project being created, use NPM instead of Yarn as yeoman doesn't seem to fetch globally linked Yarn modules. On the other hand, this means you have to use NPM in all the below steps as well.
 
 ```bash
-cd jhipster-react-mobx
+cd generator-jhipster-react-mobx
 npm link
 ```
 
@@ -74,7 +74,7 @@ You could also use Yarn for this if you prefer
 cd generator-jhipster
 npm link
 
-cd jhipster-react-mobx
+cd generator-jhipster-react-mobx
 npm link generator-jhipster
 ```
 
@@ -96,7 +96,5 @@ Apache-2.0 © [Erki Ehtla]()
 
 [npm-image]: https://img.shields.io/npm/v/generator-jhipster-react-mobx.svg
 [npm-url]: https://npmjs.org/package/generator-jhipster-react-mobx
-[travis-image]: https://travis-ci.org/erkieh/generator-jhipster-react-mobx.svg?branch=master
-[travis-url]: https://travis-ci.org/erkieh/generator-jhipster-react-mobx
 [daviddm-image]: https://david-dm.org/erkieh/generator-jhipster-react-mobx.svg?theme=shields.io
 [daviddm-url]: https://david-dm.org/erkieh/generator-jhipster-react-mobx
