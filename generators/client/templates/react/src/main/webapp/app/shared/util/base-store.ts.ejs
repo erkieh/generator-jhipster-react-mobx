@@ -52,7 +52,6 @@ export class BaseStore {
         }
         case OperationStatus.SUCCESSFUL: {
           this.updateSuccess = true;
-          this.updating = false;
           responseSuccess(result, successMessage<% if (enableTranslation) { %> && translate(successMessage)<% } %>);
           this.updating = false;
           this.rootStore.loadingStore.hideLoading();
