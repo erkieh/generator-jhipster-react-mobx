@@ -127,7 +127,7 @@ function addEnumerationFiles(generator, templateDir, clientFolder) {
             const enumInfo = {
                 ...utils.getEnumInfo(field, generator.clientRootFolder),
                 angularAppName: generator.angularAppName,
-                packageName: generator.packageName,
+                packageName: generator.packageName
             };
             if (!generator.skipClient) {
                 generator.template(
