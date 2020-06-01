@@ -92,7 +92,7 @@ jhipster -d --blueprint generator-jhipster-react-mobx
 
 # License
 
-Apache-2.0 © [Erki Ehtla]()
+Apache-2.0 © [Erki Ehtla](https://github.com/erkieh)
 
 [npm-image]: https://img.shields.io/npm/v/generator-jhipster-react-mobx.svg
 [npm-url]: https://npmjs.org/package/generator-jhipster-react-mobx
