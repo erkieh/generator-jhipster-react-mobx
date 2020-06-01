@@ -3,6 +3,7 @@
 [![NPM version][npm-image]][npm-url] [![Dependency Status][daviddm-image]][daviddm-url]
 
 ![Generator](https://github.com/erkieh/generator-jhipster-react-mobx/workflows/Generator/badge.svg) ![React](https://github.com/erkieh/generator-jhipster-react-mobx/workflows/React/badge.svg)
+
 > JHipster blueprint, React blueprint with Mobx for state management
 
 # Introduction
