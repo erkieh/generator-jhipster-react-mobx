@@ -1,6 +1,6 @@
 {
     "name": "generator-jhipster-react-mobx",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "React blueprint with Mobx for state management",
     "keywords": [
         "yeoman-generator",
@@ -27,7 +27,7 @@
     },
     "dependencies": {
         "chalk": "4.0.0",
-        "generator-jhipster": "6.9.1",
+        "generator-jhipster": "6.10.0",
         "glob": "7.1.6",
         "lodash": "4.17.15",
         "mkdirp": "1.0.4",
