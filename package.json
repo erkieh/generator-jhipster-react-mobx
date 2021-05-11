@@ -29,7 +29,7 @@
         "chalk": "4.0.0",
         "generator-jhipster": "6.10.1",
         "glob": "7.1.6",
-        "lodash": "4.17.19",
+        "lodash": "4.17.21",
         "mkdirp": "1.0.4",
         "randexp": "0.5.3"
     },
