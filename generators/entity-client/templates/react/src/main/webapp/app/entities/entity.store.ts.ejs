@@ -49,25 +49,18 @@ const apiSearchUrl = <% if (applicationType === 'gateway' && locals.microservice
 
 export class <%= entityReactName %>Store extends <%= storeClass %><I<%= entityReactName %>> {
   <%_ if (searchEngine === 'elasticsearch') { _%>
-  getSearchEntities: ICrudSearchAction<I<%= entityReactName %>> = this.readHandler(this.getSearch);
+  searchEntities: ICrudSearchAction<I<%= entityReactName %>> = this.readHandler(this.getSearch);
   <%_ } _%>
   constructor(protected rootStore: IRootStore) {
     super(rootStore, apiUrl);
   }
   <%_ if (searchEngine === 'elasticsearch') { _%>
-  *getSearch(query, page, size, sort) {
+  *getSearch({query, page, size, sort}) {
     <%_ if (pagination !== 'no') { _%>
     return yield axios.get<I<%= entityReactName %>[]>(`${apiSearchUrl}?query=${query}${sort ? `&page=${page}&size=${size}&sort=${sort}` : ''}`);
     <%_ } else { _%>
     return yield axios.get<I<%= entityReactName %>[]>(`${apiSearchUrl}?query=${query}`);
     <%_ } _%>
-  }
-  <%_ } _%>
-  <%_ if (fieldsContainBlob) { _%>
-  @action.bound
-  setBlob(name: string, dataBase64: string, contentType?: string) {
-    this.entity[name] = dataBase64;
-    this.entity[name + 'ContentType'] = contentType;
   }
   <%_ } _%>
   }

@@ -17,18 +17,18 @@
 export enum OperationStatus {
   IN_PROGRESS,
   SUCCESSFUL,
-  ERROR
+  ERROR,
 }
 
-export const handleOperation = <T, TArgs>(
+export const handleOperation = <R, Args extends any[]>(
   ctx: any,
-  param: (...args: TArgs[]) => IterableIterator<Promise<T>>,
+  param: (...args: Args) => Generator<any, R, any> | AsyncGenerator<any, R, any>,
   operationHandler: (state: OperationStatus, result?, error?) => void
 ) =>
-  function*(...args: TArgs[]): Generator<any, T, any> | AsyncGenerator<any, T, any> {
+  function* (...args: Args) {
     try {
       operationHandler(OperationStatus.IN_PROGRESS);
-      const result: T = yield* param.apply(ctx, args);
+      const result: R = yield* param.apply(ctx, args);
       operationHandler(OperationStatus.SUCCESSFUL, result);
       return result;
     } catch (e) {

@@ -17,14 +17,19 @@
 import axios, { AxiosResponse } from 'axios';
 import {IRootStore} from "app/shared/stores";
 import BaseCrudStore from './base-crud-store';
-import { action, observable } from 'mobx';
+import { action, observable, makeObservable } from 'mobx';
 import { loadMoreDataWhenScrolled, parseHeaderForLinks } from 'react-jhipster';
 
 export class InfiniteScrollCrudStore<T> extends BaseCrudStore<T> {
-  @observable public links: { [key: string]: number } = { last: 0 };
+  public links: { [key: string]: number } = { last: 0 };
 
   constructor(protected rootStore: IRootStore, protected apiUrl: string, protected settings = { clearOnUnobserved: false }) {
     super(rootStore, apiUrl, settings);
+
+    makeObservable(this, {
+      links: observable,
+      resetLinks: action.bound
+    });
   }
 
   protected resetBase() {
@@ -32,12 +37,11 @@ export class InfiniteScrollCrudStore<T> extends BaseCrudStore<T> {
     this.resetLinks();
   }
 
-  @action.bound
   resetLinks() {
     this.links = { last: 0 };
   }
 
-  *getAll(page, size, sort) {
+  *getAll({ page, size, sort }) {
     this.lastUrl = `${this.apiUrl}${sort ? `?page=${page}&size=${size}&sort=${sort}` : ''}`;
     return yield* this.getAllFromLastUrl();
   }

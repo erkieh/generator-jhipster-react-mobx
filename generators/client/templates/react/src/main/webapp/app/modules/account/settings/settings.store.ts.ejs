@@ -14,36 +14,58 @@
  limitations under the License.
 -%>
 
-import { action, observable } from 'mobx';
+import { action, observable, makeObservable } from 'mobx';
 import axios, { AxiosResponse } from 'axios';
+<% if (enableTranslation) { %>import { Storage } from 'react-jhipster';<% } %>
+<%_ if (enableTranslation && enableI18nRTL) { _%>import { isRTL } from 'app/config/translation';<%_ } _%>
 import BaseStore from 'app/shared/util/base-store';
+import {IRootStore} from "app/shared/stores";
 
 const apiUrl = '/api/account';
 
 export class SettingsStore extends BaseStore {
-  @observable public loading = false;
-  @observable public errorMessage = null;
-  @observable public updateSuccess = false;
-  @observable public updateFailure = false;
-  <%_ if (!enableTranslation) { _%>
-  private successMsg = translate('settings.messages.success');
-  <%_ } _%>
-  @action
-  saveAccountSettings = this.updateHandler(this.saveAccountSettingsGen, <% if (enableTranslation) { %>'settings.messages.success'<% } else { %>this.successMsg<% } %>);
+    public updateFailure = false;
+    public successMessage = null;
+  saveAccountSettings = this.updateHandler(this.saveAccountSettingsGen);
 
-  @action.bound
+  constructor(protected rootStore: IRootStore) {
+    super(rootStore);
+
+    makeObservable(this, {
+      updateFailure: observable,
+      successMessage: observable,
+      saveAccountSettings: action,
+      reset: action.bound,
+    });
+  }
+
   reset() {
     super.resetBase();
     this.loading = false;
     this.errorMessage = null;
+    this.successMessage = null;
     this.updateSuccess = false;
     this.updateFailure = false;
   }
 
   // Actions
   *saveAccountSettingsGen(account) {
+    this.reset();
     const result: AxiosResponse = yield axios.post(apiUrl, account);
     yield this.rootStore.authStore.getSession();
+    <%_ if (enableTranslation) { _%>
+    this.successMessage = 'settings.messages.success';
+    <%_ } else { _%>
+    this.successMessage = 'Settings saved!';
+    <%_ } _%>
+    <% if (enableTranslation) { %>
+      if (Storage.session.get(`locale`)) {
+      Storage.session.remove(`locale`);
+      }
+    <% } %>
+    <% if (enableTranslation && enableI18nRTL) { %>
+      document.querySelector('html').setAttribute('dir', isRTL(account.langKey) ? 'rtl' : 'ltr');
+    <% } %>
     return result;
   }
 }

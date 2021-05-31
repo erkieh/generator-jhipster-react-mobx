@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 source $(dirname $0)/00-init-env.sh
@@ -18,33 +18,49 @@ if [[ "$JHI_ENTITY" == "jdl" ]]; then
     mkdir -p "$JHI_FOLDER_APP"
     cp -f "$JHI_SAMPLES"/"$JHI_APP"/*.jdl "$JHI_FOLDER_APP"/
     cd "$JHI_FOLDER_APP"
+    ls -la "$JHI_FOLDER_APP"/
     npm link generator-jhipster-react-mobx
-    jhipster import-jdl *.jdl --no-insight -d --blueprints generator-jhipster-react-mobx --skip-install
+    jhipster import-jdl *.jdl -d --blueprints generator-jhipster-react-mobx --skip-install --no-insight $@
     npm i
 
-else
+elif [[ "$JHI_APP" == "jdl" ]]; then
     #-------------------------------------------------------------------------------
-    # Generate UAA project with jhipster
+    # Generate project with jhipster using jdl
     #-------------------------------------------------------------------------------
-    if [[ "$JHI_APP" == *"uaa"* ]]; then
-        mkdir -p "$JHI_FOLDER_UAA"
-        cp -f "$JHI_SAMPLES"/uaa/.yo-rc.json "$JHI_FOLDER_UAA"/
-        cd "$JHI_FOLDER_UAA"
-        npm link generator-jhipster-react-mobx
-        jhipster --force --no-insight --with-entities --skip-checks --from-cli -d --blueprints generator-jhipster-react-mobx --skip-install
-        npm i
-        ls -al "$JHI_FOLDER_UAA"
+    mkdir -p "$JHI_FOLDER_APP"
+
+    if [[ -f "$JHI_JDL_APP" ]]; then
+        cp -f "$JHI_JDL_APP" "$JHI_FOLDER_APP"/
+
+    elif [[ -d "$JHI_JDL_APP" ]]; then
+        cp -f "$JHI_JDL_APP"/*.jdl "$JHI_FOLDER_APP"/
+
+    else
+        cp -f "$JHI_JDL_SAMPLES"/"$JHI_JDL_APP"/*.jdl "$JHI_FOLDER_APP"/
     fi
 
+    ls -la "$JHI_FOLDER_APP"/
+
+    cd "$JHI_FOLDER_APP"
+    npm link generator-jhipster-react-mobx
+    jhipster import-jdl *.jdl --blueprints generator-jhipster-react-mobx --no-insight $@
+
+else
     #-------------------------------------------------------------------------------
     # Generate project with jhipster
     #-------------------------------------------------------------------------------
     mkdir -p "$JHI_FOLDER_APP"
-    cp -f "$JHI_SAMPLES"/"$JHI_APP"/.yo-rc.json "$JHI_FOLDER_APP"/
+
+    if [[ "$JHI_GENERATE_SKIP_CONFIG" != "1" ]]; then
+        cp -f "$JHI_SAMPLES"/"$JHI_APP"/.yo-rc.json "$JHI_FOLDER_APP"/
+    else
+        echo "skipping config file"
+    fi
+
     cd "$JHI_FOLDER_APP"
+
     npm link generator-jhipster-react-mobx
-    jhipster --force --no-insight --skip-checks --with-entities --from-cli -d --blueprints generator-jhipster-react-mobx --skip-install
-    npm i
+    jhipster --blueprints generator-jhipster-react-mobx --force --no-insight --skip-checks --with-entities $@
 
 fi
 
@@ -52,4 +68,4 @@ fi
 # Check folder where the app is generated
 #-------------------------------------------------------------------------------
 ls -al "$JHI_FOLDER_APP"
-git --no-pager log -n 10 --graph --pretty='%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+git --no-pager log -n 10 --graph --pretty='%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit || true

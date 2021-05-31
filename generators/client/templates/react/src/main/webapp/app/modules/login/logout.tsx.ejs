@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2020 the original author or authors from the JHipster project.
+ Copyright 2013-2021 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -8,7 +8,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+      https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,13 +29,12 @@ export interface ILogoutProps extends StoreProps {
 export const Logout = (props: ILogoutProps) => {
   useLayoutEffect(() => {
     props.logout();
-    const logoutUrl = props.logoutUrl;
+    const { logoutUrl, idToken } = props;
     if (logoutUrl) {
       // if Keycloak, logoutUrl has protocol/openid-connect in it
-      window.location.href =
-        logoutUrl.includes('/protocol')
-          ? logoutUrl + '?redirect_uri=' + window.location.origin
-          : logoutUrl + '?id_token_hint=' + props.idToken + '&post_logout_redirect_uri=' + window.location.origin;
+      window.location.href = logoutUrl.includes('/protocol')
+        ? logoutUrl + '?redirect_uri=' + window.location.origin
+        : logoutUrl + '?id_token_hint=' + idToken + '&post_logout_redirect_uri=' + window.location.origin;
     }
   });
 

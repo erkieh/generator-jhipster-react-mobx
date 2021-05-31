@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2020 the original author or authors from the JHipster project.
+ Copyright 2013-2021 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -8,7 +8,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+      https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,19 +24,14 @@ import {
   Navbar,
   Nav,
   NavbarToggler,
-  NavbarBrand,
   Collapse
 } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { NavLink as Link } from 'react-router-dom';
-import SimpleLoadingBar from 'react-simple-loading-bar'
 <%_ if (enableTranslation && enableI18nRTL) { _%>
 import { isRTL } from 'app/config/translation';
 <%_ } _%>
-
 import { Home, Brand } from './header-components';
-import { AdminMenu, EntitiesMenu, AccountMenu<%_ if (enableTranslation) { _%>, LocaleMenu<%_ } _%> } from '../menus';
+import { AdminMenu, EntitiesMenu, AccountMenu<%_ if (enableTranslation) { _%>, LocaleMenu<%_ } _%>} from '../menus';
 import {IRootStore} from "app/shared/stores";
 import {connect} from "app/shared/util/typed-inject";
 
@@ -45,39 +40,39 @@ export interface IHeaderProps {
   isAdmin: boolean;
   ribbonEnv: string;
   isInProduction: boolean;
-  isSwaggerEnabled: boolean;
+  isOpenAPIEnabled: boolean;
 <%_ if (enableTranslation) { _%>
   currentLocale: string;
-  onLocaleChange: Function;
+  onLocaleChange: (string) => void;
 <%_ } _%>
 }
 
 
 export const Header = (props: IHeaderProps & StoreProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  <%_ if (enableI18nRTL) { _%>
+<%_ if (enableI18nRTL) { _%>
   useEffect(() => document.querySelector('html').setAttribute('dir', isRTL(Storage.session.get('locale')) ? 'rtl' : 'ltr'));
-  <%_ } _%>
+<%_ } _%>
 
-  <%_ if (enableTranslation) { _%>
+<%_ if (enableTranslation) { _%>
   const handleLocaleChange = event => {
     const langKey = event.target.value;
     Storage.session.set('locale', langKey);
     props.onLocaleChange(langKey);
-    <%_ if (enableI18nRTL) { _%>
+  <%_ if (enableI18nRTL) { _%>
     document.querySelector('html').setAttribute('dir', isRTL(langKey) ? 'rtl' : 'ltr');
-    <%_ } _%>
-  }
   <%_ } _%>
+  }
+<%_ } _%>
 
   const renderDevRibbon = () => props.isInProduction === false ? (
     <div className="ribbon dev">
       <a href="">
-        <%_ if (enableTranslation) { _%>
+<%_ if (enableTranslation) { _%>
         <Translate contentKey={`global.ribbon.${props.ribbonEnv}`} />
-        <%_ } else { _%>
+<%_ } else { _%>
         Development
-        <%_ } _%>
+<%_ } _%>
       </a>
     </div>
   ) : null;
@@ -89,8 +84,10 @@ export const Header = (props: IHeaderProps & StoreProps) => {
   return (
     <div id="app-header">
       {renderDevRibbon()}
-      <SimpleLoadingBar activeRequests={props.count} />
-      <Navbar <% if (clientTheme === 'none' || clientThemeVariant !== 'light') { %>dark<% } else { %>light<% } %> expand="sm" fixed="top" className="<%_ if (clientTheme === 'none') { _%>jh-navbar<%_ } else { _%>bg-<%= clientThemeVariant %><%_ } _%>">
+        <div className="simple__loading__container">
+            <div className={'simple__loading__bar ' + (props.count === 0 ? 'simple__loading__bar--done ' : '')}></div>
+        </div>
+      <Navbar data-cy="navbar" <% if (clientThemeNone || !clientThemeLight) { %>dark<% } else { %>light<% } %> expand="sm" fixed="top" className="<%_ if (clientThemeNone) { _%>jh-navbar<%_ } else { _%>bg-<%= clientThemeVariant %><%_ } _%>">
         <NavbarToggler aria-label="Menu" onClick={toggleMenu} />
         <Brand />
         <Collapse isOpen={menuOpen} navbar>
@@ -98,7 +95,7 @@ export const Header = (props: IHeaderProps & StoreProps) => {
             <Home />
             {props.isAuthenticated && <EntitiesMenu />}
             {props.isAuthenticated && props.isAdmin &&
-              <AdminMenu showSwagger={props.isSwaggerEnabled} <% if (devDatabaseType === 'h2Disk' || devDatabaseType === 'h2Memory') { %> showDatabase={!props.isInProduction} <%_ } _%> />}
+            <AdminMenu showOpenAPI={props.isOpenAPIEnabled} <% if (devDatabaseTypeH2Any) { %> showDatabase={!props.isInProduction} <%_ } _%> />}
           <%_ if (enableTranslation) { _%>
             <LocaleMenu currentLocale={props.currentLocale} onClick={handleLocaleChange} />
           <%_ } _%>

@@ -78,7 +78,7 @@ describe('Pagination crud store tests', () => {
       store.getAllFromLastUrl = jest.fn().mockImplementationOnce(function*() {
         return yield Promise.resolve(data);
       });
-      const result = yield* store.getAll();
+      const result = yield* store.getAll({});
       expect(store.getAllFromLastUrl).toHaveBeenCalledTimes(1);
       expect(store.lastUrl).toBe('/api/entities');
       expect(result).toBe(data);

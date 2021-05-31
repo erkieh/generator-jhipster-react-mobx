@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2020 the original author or authors from the JHipster project.
+ Copyright 2013-2021 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -8,7 +8,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+      https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,9 +16,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -%>
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Button, Col, Progress, Row, Table } from 'reactstrap';
+import {IRootStore} from "app/shared/stores";
+import { Button, Col, Row } from 'reactstrap';
 import {
   CacheMetrics,
   DatasourceMetrics,
@@ -28,17 +29,16 @@ import {
   JvmThreads,
   EndpointsRequestsMetrics,
   SystemMetrics,
-  Translate
+  Translate,
 } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { APP_TIMESTAMP_FORMAT, APP_TWO_DIGITS_AFTER_POINT_NUMBER_FORMAT, APP_WHOLE_NUMBER_FORMAT } from 'app/config/constants';
-import { IRootStore } from 'app/shared/stores';
 
 export type IMetricsPageProps = StoreProps;
 
 export const MetricsPage = (props: IMetricsPageProps) => {
-  const [showModal, setShowModal] = useState(false);
+  const { metrics, threadDump, isFetching } = props;
 
   useEffect(() => {
     props.systemMetrics();
@@ -46,17 +46,17 @@ export const MetricsPage = (props: IMetricsPageProps) => {
   }, []);
 
   const getMetrics = () => {
-    if (!props.isFetching) {
+    if (!isFetching) {
       props.systemMetrics();
       props.systemThreadDump();
     }
   };
 
-  const { metrics, threadDump, isFetching } = props;
-
   return (
     <div>
-      <h2 id="metrics-page-heading">Application Metrics</h2>
+      <h2 id="metrics-page-heading" data-cy="metricsPageHeading">
+        Application Metrics
+      </h2>
       <p>
         <Button onClick={getMetrics} color={isFetching ? 'btn btn-danger' : 'btn btn-primary'} disabled={isFetching}>
           <FontAwesomeIcon icon="sync" />
@@ -124,10 +124,7 @@ export const MetricsPage = (props: IMetricsPageProps) => {
       {metrics.databases && JSON.stringify(metrics.databases) !== '{}' ? (
         <Row>
           <Col sm="12">
-            <DatasourceMetrics
-              datasourceMetrics={metrics.databases}
-              twoDigitAfterPointFormat={APP_TWO_DIGITS_AFTER_POINT_NUMBER_FORMAT}
-            />
+            <DatasourceMetrics datasourceMetrics={metrics.databases} twoDigitAfterPointFormat={APP_TWO_DIGITS_AFTER_POINT_NUMBER_FORMAT} />
           </Col>
         </Row>
       ) : (

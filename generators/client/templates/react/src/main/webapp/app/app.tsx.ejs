@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2020 the original author or authors from the JHipster project.
+ Copyright 2013-2021 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -8,7 +8,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+      https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,8 +18,7 @@
 -%>
 import 'react-toastify/dist/ReactToastify.css';
 import './app.<%= styleSheetExt %>';
-
-import { hot } from 'react-hot-loader/root';
+import 'app/config/dayjs.ts';
 import 'mobx-react-lite/batchingForReactDom';
 import React, { useEffect } from 'react';
 import { componentInject } from 'app/shared/util/typed-inject';
@@ -55,13 +54,13 @@ export const App = (props: IAppProps) => {
           <Header
             isAuthenticated={props.isAuthenticated}
             isAdmin={props.isAdmin}
-          <%_ if (enableTranslation) { _%>
+<%_ if (enableTranslation) { _%>
             currentLocale={props.currentLocale}
             onLocaleChange={props.setLocale}
-          <%_ } _%>
+<%_ } _%>
             ribbonEnv={props.ribbonEnv}
             isInProduction={props.isInProduction}
-            isSwaggerEnabled={props.isSwaggerEnabled}
+            isOpenAPIEnabled={props.isOpenAPIEnabled}
           />
         </ErrorBoundary>
         <div className="container-fluid view-container" id="app-view-container">
@@ -85,7 +84,7 @@ const mapStoreToProps = ({ authStore, profileStore<% if (enableTranslation) { %>
   isAdmin: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.ADMIN]),
   ribbonEnv: profileStore.ribbonEnv,
   isInProduction: profileStore.isInProduction,
-  isSwaggerEnabled: profileStore.isSwaggerEnabled,
+  isOpenAPIEnabled: profileStore.isOpenAPIEnabled,
 <%_ if (enableTranslation) { _%>
   setLocale: localeStore.setLocale,
 <%_ } _%>
@@ -94,4 +93,4 @@ const mapStoreToProps = ({ authStore, profileStore<% if (enableTranslation) { %>
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default componentInject(mapStoreToProps)(hot(observer(App)));
+export default componentInject(mapStoreToProps)(observer(App));

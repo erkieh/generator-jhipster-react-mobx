@@ -16,14 +16,20 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -%>
-import { action, observable } from 'mobx';
+import {action, makeObservable, observable} from 'mobx';
 import { TranslatorContext } from 'react-jhipster';
 import axios from 'axios';
 
 export class LocaleStore {
-  @observable public currentLocale;
+  public currentLocale = null;
 
-  @action.bound
+  constructor() {
+    makeObservable(this, {
+      currentLocale: observable,
+      setLocale: action.bound,
+    });
+  }
+
   async setLocale(locale) {
     if (!Object.keys(TranslatorContext.context.translations).includes(locale)) {
       const response = await axios.get(`i18n/${locale}.json?buildTimestamp=${process.env.BUILD_TIMESTAMP}`, { baseURL: '' });

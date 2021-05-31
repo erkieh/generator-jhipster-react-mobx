@@ -16,9 +16,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -%>
-import { action, observable } from 'mobx';
+import {action, makeObservable, observable} from 'mobx';
 import axios, { AxiosResponse } from 'axios';
 import BaseStore from 'app/shared/util/base-store';
+import {IRootStore} from "app/shared/stores/createStore";
 <%_ if (authenticationType === 'jwt' || enableTranslation) { _%>
 import { Storage } from 'react-jhipster';
 <%_ } _%>
@@ -36,33 +37,53 @@ return false;
 };
 
 export class AuthStore extends BaseStore {
-    @observable public isAuthenticated = false;
-    @observable public account: any = {};
-    @observable public redirectMessage: string = null;
-    @observable public sessionHasBeenFetched = false;
-    @observable public idToken: string = null;
-    @observable public logoutUrl: string = null;
+      public isAuthenticated = false;
+      public account: any = {};
+      public redirectMessage: string = null;
+      public sessionHasBeenFetched = false;
+      public idToken: string = null;
+      public logoutUrl: string = null;
     <%_ if (authenticationType !== 'oauth2') { _%>
-    @observable public loginSuccess = false;
-    @observable public loginError = false; // Errors returned from server side
-    @observable public showModalLogin = false;
+      public loginSuccess = false;
+      public loginError = false; // Errors returned from server side
+      public showModalLogin = false;
     <%_ } _%>
 
-    @action
     getSession = this.readHandler(this.getSessionGen);
 
 <%_ if (authenticationType !== 'oauth2') { _%>
-    @action
     login = this.readHandler(this.loginGen);
 <%_ } _%>
 
 <%_ if (authenticationType !== 'jwt') { _%>
-    @action
     logout = this.readHandler(this.logoutGen);
 <%_ } _%>
 
-    @action.bound
+
     reset = this.resetBase;
+
+    constructor(protected rootStore: IRootStore) {
+        super(rootStore);
+
+        makeObservable(this, {
+          isAuthenticated: observable,
+          account: observable,
+          redirectMessage: observable,
+          sessionHasBeenFetched: observable,
+          idToken: observable,
+          logoutUrl: observable,
+          loginSuccess: observable,
+          loginError: observable,
+          showModalLogin: observable,
+          getSession: action,
+          login: action,
+          reset: action.bound,
+          displayAuthError: action.bound,
+          clearAuthentication: action.bound,
+          clearAuthToken: action.bound,
+          logout: action.bound,
+        });
+      }
 
     resetBase() {
       this.isAuthenticated = false;
@@ -82,7 +103,7 @@ export class AuthStore extends BaseStore {
       this.updateSuccess = false;
     }
 
-    @action.bound
+
     displayAuthError(message) {
 <%_ if (authenticationType !== 'oauth2') { _%>
     this.showModalLogin = true;
@@ -90,7 +111,7 @@ export class AuthStore extends BaseStore {
         this.redirectMessage = message;
     }
 
-    @action.bound
+
     clearAuthentication(messageKey) {
         <%_ if (authenticationType == 'jwt') { _%>
         this.clearAuthToken();
@@ -105,7 +126,7 @@ export class AuthStore extends BaseStore {
     }
 
 <%_ if (authenticationType === 'jwt') { _%>
-    @action.bound
+
     clearAuthToken() {
         if (Storage.local.get(AUTH_TOKEN_KEY)) {
             Storage.local.remove(AUTH_TOKEN_KEY);
@@ -115,7 +136,7 @@ export class AuthStore extends BaseStore {
         }
     }
 
-    @action.bound
+
     logout() {
         this.reset();
         this.clearAuthToken();
@@ -178,6 +199,7 @@ export class AuthStore extends BaseStore {
 <%_ if (authenticationType === 'session') { _%>
 
   *loginGen(username, password, rememberMe = false) {
+    this.reset();
     try {
       const data = `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&remember-me=${rememberMe}&submit=Login`;
       const result: AxiosResponse = yield axios.post('/api/authentication', data, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
@@ -197,6 +219,7 @@ export class AuthStore extends BaseStore {
 <%_ } else if (authenticationType === 'jwt') { _%>
 
     *loginGen(username, password, rememberMe = false) {
+    this.reset();
         try {
             const result: AxiosResponse = yield axios.post('/api/authenticate', { username, password, rememberMe });
             const bearerToken = result.headers.authorization;
@@ -224,6 +247,7 @@ export class AuthStore extends BaseStore {
 <%_ } else if (authenticationType === 'uaa') { _%>
 
   *loginGen(username, password, rememberMe = false) {
+    this.reset();
     try {
       const result: AxiosResponse = yield axios.post('/auth/login', { username, password });
       yield this.getSession();

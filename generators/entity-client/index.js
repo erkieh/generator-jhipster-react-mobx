@@ -1,11 +1,14 @@
-/*
- * Copyright 2020 Erki Ehtla.
+/**
+ * Copyright 2013-2021 the original author or authors from the JHipster project.
+ *
+ * This file is part of the JHipster project, see https://www.jhipster.tech/
+ * for more information.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,90 +16,139 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /* eslint-disable consistent-return */
-const EntityClientGenerator = require('generator-jhipster/generators/entity-client');
-const constants = require('generator-jhipster/generators/generator-constants');
-const chalk = require('chalk');
-
-const REACT = constants.SUPPORTED_CLIENT_FRAMEWORKS.REACT;
-const writeFiles = require('./files').writeFiles;
+const _ = require('lodash');
+const utils = require('generator-jhipster/generators/utils');
+const BaseBlueprintGenerator = require('generator-jhipster/generators/generator-base-blueprint');
+const {
+  SUPPORTED_CLIENT_FRAMEWORKS: { ANGULAR, REACT },
+} = require('generator-jhipster/generators/generator-constants');
+const { GENERATOR_ENTITY_CLIENT } = require('generator-jhipster/generators/generator-list');
+const NeedleApi = require('generator-jhipster/generators/needle-api');
+const { writeFiles, addToMenu, replaceTranslations } = require('./files');
 const NeedleClientReact = require('../client/needle-api/needle-client-react-mobx');
 
-module.exports = class extends EntityClientGenerator {
-    constructor(args, opts) {
-        super(args, { fromBlueprint: true, ...opts }); // fromBlueprint variable is important
+let useBlueprints;
 
-        if (!this.jhipsterContext) {
-            this.error(
-                `This is a JHipster blueprint and should be used only like ${chalk.yellow('jhipster --blueprint jhipster-react-mobx')}`
-            );
+module.exports = class extends BaseBlueprintGenerator {
+  constructor(args, opts) {
+    super(args, opts);
+    this.entity = opts.context;
+
+    this.jhipsterContext = opts.jhipsterContext || opts.context;
+
+    useBlueprints = !this.fromBlueprint && this.instantiateBlueprints(GENERATOR_ENTITY_CLIENT, { context: opts.context });
+  }
+
+  // Public API method used by the getter and also by Blueprints
+  _default() {
+    return {
+      ...super._missingPreDefault(),
+
+      loadConfigIntoGenerator() {
+        utils.copyObjectProps(this, this.entity);
+      },
+
+      setup() {
+        if (!this.embedded) {
+          this.tsKeyType = this.getTypescriptKeyType(this.primaryKey.type);
         }
-    }
+      },
+    };
+  }
 
-    get initializing() {
-        return super._initializing();
-    }
+  get default() {
+    if (useBlueprints) return;
+    return this._default();
+  }
 
-    get prompting() {
-        return super._prompting();
-    }
-
-    get configuring() {
-        return super._configuring();
-    }
-
-    get default() {
-        return super._default();
-    }
-
-    get writing() {
-        return {
-            writeAdditionalFile() {
-                writeFiles.call(this);
+  // Public API method used by the getter and also by Blueprints
+  _writing() {
+    return {
+      cleanup() {
+        if (this.isJhipsterVersionLessThan('7.0.0-beta.0') && this.jhipsterConfig.clientFramework === ANGULAR) {
+          this.removeFile(`${this.CLIENT_MAIN_SRC_DIR}/app/entities/${this.entityFolderName}/${this.entityFileName}.route.ts`);
+          this.removeFile(`${this.CLIENT_MAIN_SRC_DIR}/app/entities/${this.entityFolderName}/${this.entityFileName}.component.ts`);
+          this.removeFile(`${this.CLIENT_MAIN_SRC_DIR}/app/entities/${this.entityFolderName}/${this.entityFileName}.component.html`);
+          this.removeFile(`${this.CLIENT_MAIN_SRC_DIR}/app/entities/${this.entityFolderName}/${this.entityFileName}-detail.component.ts`);
+          this.removeFile(`${this.CLIENT_MAIN_SRC_DIR}/app/entities/${this.entityFolderName}/${this.entityFileName}-detail.component.html`);
+          this.removeFile(
+            `${this.CLIENT_MAIN_SRC_DIR}/app/entities/${this.entityFolderName}/${this.entityFileName}-delete-dialog.component.ts`
+          );
+          this.removeFile(
+            `${this.CLIENT_MAIN_SRC_DIR}/app/entities/${this.entityFolderName}/${this.entityFileName}-delete-dialog.component.html`
+          );
+          this.removeFile(`${this.CLIENT_MAIN_SRC_DIR}/app/entities/${this.entityFolderName}/${this.entityFileName}-update.component.ts`);
+          this.removeFile(`${this.CLIENT_MAIN_SRC_DIR}/app/entities/${this.entityFolderName}/${this.entityFileName}-update.component.html`);
+          this.removeFile(`${this.CLIENT_MAIN_SRC_DIR}/app/shared/model/${this.entityModelFileName}.model.ts`);
+          this.fields.forEach(field => {
+            if (field.fieldIsEnum === true) {
+              const enumFileName = _.kebabCase(field.fieldType);
+              this.removeFile(`${this.CLIENT_MAIN_SRC_DIR}/app/shared/model/enumerations/${enumFileName}.model.ts`);
             }
-        };
-    }
-
-    get needleClientReact() {
-        if (this._needleClientReact === undefined || this._needleClientReact === null) {
-            this._needleClientReact = new NeedleClientReact(this);
+          });
+          this.removeFile(
+            `${this.CLIENT_MAIN_SRC_DIR}/app/entities/${this.entityFolderName}/${this.entityFileName}-routing-resolve.service.ts`
+          );
+          this.removeFile(`${this.CLIENT_MAIN_SRC_DIR}/app/entities/${this.entityFolderName}/${this.entityFileName}-routing.module.ts`);
+          this.removeFile(`${this.CLIENT_MAIN_SRC_DIR}/app/entities/${this.entityFolderName}/${this.entityFileName}.service.ts`);
+          this.removeFile(`${this.CLIENT_MAIN_SRC_DIR}/app/entities/${this.entityFolderName}/${this.entityFileName}.service.spec.ts`);
+          this.removeFile(
+            `${this.CLIENT_TEST_SRC_DIR}/spec/app/entities/${this.entityFolderName}/${this.entityFileName}.component.spec.ts`
+          );
+          this.removeFile(
+            `${this.CLIENT_TEST_SRC_DIR}/spec/app/entities/${this.entityFolderName}/${this.entityFileName}-detail.component.spec.ts`
+          );
+          this.removeFile(
+            `${this.CLIENT_TEST_SRC_DIR}/spec/app/entities/${this.entityFolderName}/${this.entityFileName}-delete-dialog.component.spec.ts`
+          );
+          this.removeFile(
+            `${this.CLIENT_TEST_SRC_DIR}/spec/app/entities/${this.entityFolderName}/${this.entityFileName}-update.component.spec.ts`
+          );
+          this.removeFile(`${this.CLIENT_TEST_SRC_DIR}/spec/app/entities/${this.entityFolderName}/${this.entityFileName}.service.spec.ts`);
         }
-        return this._needleClientReact;
-    }
-
-    /**
-     * Add a new entity in the TS modules file.
-     *
-     * @param {string} entityInstance - Entity Instance
-     * @param {string} entityClass - Entity Class
-     * @param {string} entityName - Entity Name
-     * @param {string} entityFolderName - Entity Folder Name
-     * @param {string} entityFileName - Entity File Name
-     * @param {boolean} entityUrl - Entity router URL
-     * @param {string} clientFramework - The name of the client framework
-     * @param {string} microServiceName - Microservice Name
-     */
-    addEntityToModule(
-        entityInstance,
-        entityClass,
-        entityName,
-        entityFolderName,
-        entityFileName,
-        entityUrl,
-        clientFramework,
-        microServiceName
-    ) {
-        if (clientFramework === REACT) {
-            this.needleClientReact.addEntityToModule(entityInstance, entityClass, entityName, entityFolderName, entityFileName);
+        if (this.isJhipsterVersionLessThan('7.0.0-beta.1') && this.jhipsterConfig.clientFramework === REACT) {
+          this.removeFile(`${this.CLIENT_TEST_SRC_DIR}spec/app/entities/${this.entityFolderName}/${this.entityFileName}-reducer.spec.ts`);
         }
-    }
+      },
+      ...writeFiles(),
+      ...super._missingPostWriting(),
+    };
+  }
 
-    get install() {
-        return super._install();
-    }
+  get writing() {
+    if (useBlueprints) return;
+    return this._writing();
+  }
 
-    get end() {
-        return super._end();
+  get needleApi() {
+    if (this._needleApi === undefined || this._needleApi === null) {
+      this._needleApi = new NeedleApi(this);
+      this._needleApi.clientReact = new NeedleClientReact(this);
     }
+    return this._needleApi;
+  }
+
+  // Public API method used by the getter and also by Blueprints
+  _postWriting() {
+    return {
+      addToMenu() {
+        return addToMenu.call(this);
+      },
+
+      replaceTranslations() {
+        if (
+          this.skipClient ||
+          (this.jhipsterConfig.microfrontend && this.jhipsterConfig.applicationType === 'gateway' && this.microserviceName)
+        )
+          return undefined;
+        return replaceTranslations.call(this);
+      },
+    };
+  }
+
+  get postWriting() {
+    if (useBlueprints) return;
+    return this._postWriting();
+  }
 };

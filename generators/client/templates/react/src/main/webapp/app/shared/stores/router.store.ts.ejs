@@ -16,19 +16,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -%>
-import { History } from 'history';
-import {
-  RouterStore as BaseRouterStore,
-  syncHistoryWithStore
-} from 'mobx-react-router';
+import { RouterStore as BaseRouterStore } from '@superwf/mobx-react-router';
 
 export class RouterStore extends BaseRouterStore {
-  constructor(history?: History) {
-    super();
-    if (history) {
-      this.history = syncHistoryWithStore(history, this);
-    }
+  constructor(history) {
+    super(history);
   }
 }
 
 export default RouterStore;
+

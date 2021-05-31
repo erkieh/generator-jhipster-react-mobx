@@ -24,7 +24,7 @@ jest.mock('axios');
 const axiosMock = axios as jest.Mocked<typeof axios>;
 
 class BaseCrudStoreImpl extends BaseCrudStore<{}> {
-  *getAll(page, size, sort) {
+  *getAll({page, size, sort}) {
     return yield Promise.resolve();
   }
 
