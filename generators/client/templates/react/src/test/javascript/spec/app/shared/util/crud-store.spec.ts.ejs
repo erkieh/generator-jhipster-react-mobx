@@ -51,7 +51,7 @@ describe('Crud store tests', () => {
       store.getAllFromLastUrl = jest.fn().mockImplementationOnce(function*() {
         return yield Promise.resolve(data);
       });
-      const result = yield* store.getAll();
+      const result = yield* store.getAll({});
       expect(store.getAllFromLastUrl).toHaveBeenCalledTimes(1);
       expect(result).toBe(data);
     });

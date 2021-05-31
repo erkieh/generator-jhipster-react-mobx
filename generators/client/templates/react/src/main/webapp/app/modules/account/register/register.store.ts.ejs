@@ -14,35 +14,52 @@
  limitations under the License.
 -%>
 
-import { action, observable } from 'mobx';
+import { action, observable, makeObservable } from 'mobx';
 import axios, { AxiosResponse } from 'axios';
 import BaseStore from 'app/shared/util/base-store';
+import {IRootStore} from "app/shared/stores";
 import { responseSuccess } from 'app/config/notification-middleware-mobx';
 import { translate } from 'react-jhipster';
 
 export class RegisterStore extends BaseStore {
-  @observable public registrationSuccess = false;
-  @observable public registrationFailure = false;
+    public registrationSuccess = false;
+    public registrationFailure = false;
+    public successMessage = null;
 
-  @action
   handleRegister = this.readHandler(this.handleRegisterGen);
 
-  @action.bound
+  constructor(protected rootStore: IRootStore) {
+    super(rootStore);
+
+    makeObservable(this, {
+      registrationSuccess: observable,
+      registrationFailure: observable,
+      successMessage: observable,
+      handleRegister: action,
+      reset: action.bound,
+    });
+  }
+
   reset() {
     this.loading = false;
     this.registrationSuccess = false;
     this.registrationFailure = false;
     this.errorMessage = null;
+    this.successMessage = null;
   }
 
-  * handleRegisterGen(login, email, password, langKey = 'en') {
+  * handleRegisterGen({login, email, password, langKey = 'en'}) {
+    this.reset();
     this.loading = true;
     try {
       const result: AxiosResponse = yield axios.post('/api/register', { login, email, password, langKey });
       this.registrationSuccess = true;
       this.loading = false;
-      const msg = translate('register.messages.success');
-      responseSuccess(result, msg);
+      <%_ if (enableTranslation) { _%>
+      this.successMessage= 'register.messages.success';
+      <%_ } else { _%>
+      this.successMessage= 'Registration saved! Please check your email for confirmation.';
+      <%_ } _%>
       return result;
     } catch (e) {
       this.registrationFailure = true;

@@ -14,72 +14,87 @@
  limitations under the License.
 -%>
 
-import { action, observable<% if (websocket === 'spring-websocket') { %>, reaction<% } %> } from 'mobx';
+import { action, observable<% if (websocket === 'spring-websocket') { %>, reaction<% } %>, makeObservable } from 'mobx';
 import axios, { AxiosResponse } from 'axios';
 import BaseStore from 'app/shared/util/base-store';
+import {IRootStore} from "app/shared/stores";
 <%_ if (websocket === 'spring-websocket') { _%>
 import {IRootStore} from "app/shared/stores";
 import * as webSocketUtils from 'app/config/websocket-middleware';
 <%_ } _%>
 export class AdministrationStore extends BaseStore {
-    @observable public gateway = {
+    public gateway = {
         routes: []
     };
-    @observable public logs = {
+    public logs = {
         loggers: [] as any[]
     };
-    @observable public health: any = {};
-    @observable public metrics: any = {};
-    @observable public threadDump = [];
-    @observable public configuration = {
+    public health: any = {};
+    public metrics: any = {};
+    public threadDump = [];
+    public configuration = {
         configProps: {} as any,
         env: {} as any
     };
-    @observable public audits = [];
-    @observable public totalItems = 0;
+    public audits = [];
+    public totalItems = 0;
 <%_ if (websocket === 'spring-websocket') { _%>
-    @observable public tracker = { activities: [] };
+    public tracker = { activities: [] };
 <%_ } _%>
 
-    @action
     gatewayRoutes = this.readHandler(this.gateRoutes);
 
-    @action
     systemHealth = this.readHandler(this.sysHealth);
 
-    @action
     systemMetrics = this.readHandler(this.sysMetrics);
 
-    @action
     systemThreadDump = this.readHandler(this.sysThreadDump);
 
-    @action
     getLoggers = this.readHandler(this.loggers);
 
-    @action
     changeLogLevel = this.updateHandler(this.changeLogLev);
 
-    @action
     getConfigurations = this.readHandler(this.getConf);
 
-    @action
     getEnv = this.readHandler(this.getEnvir);
 
-    @action
     getAudits = this.readHandler(this.getAudit);
-<%_ if (websocket === 'spring-websocket') { _%>
 
     constructor(protected rootStore: IRootStore) {
       super(rootStore);
+
+    makeObservable(this, {
+      gateway: observable,
+      logs: observable,
+      health: observable,
+      metrics: observable,
+      threadDump: observable,
+      configuration: observable,
+      audits: observable,
+      totalItems: observable,
+      gatewayRoutes: action,
+      systemHealth: action,
+      systemMetrics: action,
+      systemThreadDump: action,
+      getLoggers: action,
+      changeLogLevel: action,
+      getConfigurations: action,
+      getEnv: action,
+      getAudits: action,
+    });
+<%_ if (websocket === 'spring-websocket') { _%>
       reaction(() => rootStore.authStore.isAuthenticated, isAuthenticated => {
         if (isAuthenticated) {
           webSocketUtils.connect();
-          if (!webSocketUtils.alreadyConnectedOnce) {
+          const isAdmin = rootStore.authStore.account.authorities.includes('ROLE_ADMIN');
+          if (!webSocketUtils.alreadyConnectedOnce && isAdmin) {
+            webSocketUtils.subscribe();
             webSocketUtils.receive().subscribe(newActivity => {
-              // filter out activities from the same session
-              const uniqueActivities = this.tracker.activities.filter(activity => activity.sessionId !== newActivity.sessionId);
-              // remove any activities with the page of logout
-              this.tracker.activities = [...uniqueActivities, newActivity].filter(activity => activity.page !== 'logout');
+            // filter out activities from the same session
+            const uniqueActivities = state.tracker.activities.filter(activity => activity.sessionId !== action.payload.sessionId);
+            // remove any activities with the page of logout
+            const activities = [...uniqueActivities, action.payload].filter(activity => activity.page !== 'logout');
+            state.tracker = { activities };
             });
           }
         } else {
@@ -87,8 +102,8 @@ export class AdministrationStore extends BaseStore {
           webSocketUtils.disconnect();
         }
       });
-    }
 <%_ } _%>
+    }
 
     // Actions
     *gateRoutes() {

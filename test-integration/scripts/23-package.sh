@@ -1,26 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 source $(dirname $0)/00-init-env.sh
 
-#-------------------------------------------------------------------------------
-# Package UAA
-#-------------------------------------------------------------------------------
-if [[ "$JHI_APP" == *"uaa"* ]]; then
-    cd "$JHI_FOLDER_UAA"
-    ./mvnw -ntp verify -DskipTests -Pdev --batch-mode
-    mv target/*.jar app.jar
-fi
-
-#-------------------------------------------------------------------------------
-# Decrease Angular timeout for Protractor tests
-#-------------------------------------------------------------------------------
 cd "$JHI_FOLDER_APP"
-if [ "$JHI_PROTRACTOR" == 1 ] && [ -e "src/main/webapp/app/core/core.module.ts" ]; then
-    sed -e 's/alertTimeout: 5000/alertTimeout: 1/1;' src/main/webapp/app/core/core.module.ts > src/main/webapp/app/core/core.module.ts.sed
-    mv -f src/main/webapp/app/core/core.module.ts.sed src/main/webapp/app/core/core.module.ts
-    cat src/main/webapp/app/core/core.module.ts | grep alertTimeout
-fi
 
 #-------------------------------------------------------------------------------
 # Package the application

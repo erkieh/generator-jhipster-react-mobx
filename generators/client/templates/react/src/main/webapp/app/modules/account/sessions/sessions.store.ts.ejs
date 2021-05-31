@@ -14,7 +14,7 @@
  limitations under the License.
 -%>
 
-import { action, observable } from 'mobx';
+import { action, observable, makeObservable } from 'mobx';
 import axios, { AxiosResponse } from 'axios';
 import BaseStore from 'app/shared/util/base-store';
 import {IRootStore} from "app/shared/stores";
@@ -22,13 +22,11 @@ import {IRootStore} from "app/shared/stores";
 const apiUrl = '/api/account/sessions/';
 
 export class SessionsStore extends BaseStore {
-  @observable public sessions: ReadonlyArray<any>;
-  @observable public updateFailure: boolean;
+    public sessions: ReadonlyArray<any> = [];
+    public updateFailure: boolean = false;
 
-  @action
   findAll = this.readHandler(this.findAllGen);
 
-  @action
   invalidateSession = this.updateHandler(this.invalidateSessionGen);
 
   constructor(rootStore: IRootStore) {
@@ -43,7 +41,7 @@ export class SessionsStore extends BaseStore {
     this.updateFailure = false;
   }
 
-  * findAllGen(page, size, sort) {
+  * findAllGen({page, size, sort}) {
     const result: AxiosResponse = yield axios.get(
       apiUrl);
     this.sessions = result.data;

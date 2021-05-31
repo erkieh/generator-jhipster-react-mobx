@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2020 the original author or authors from the JHipster project.
+ Copyright 2013-2021 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -8,7 +8,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+      https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -%>
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Translate } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -24,13 +24,14 @@ import { Badge, Table, Button } from 'reactstrap';
 
 export type IGatewayPageProps = StoreProps;
 
-export class GatewayPage extends React.Component<IGatewayPageProps> {
+export const GatewayPage = (props: IGatewayPageProps) => {
+  const { routes, isFetching } = this.props;
 
-  componentDidMount() {
+  useEffect(() => {
     this.props.gatewayRoutes();
-  }
+  }, []);
 
-  metadata = instance => {
+  const metadata = instance => {
     const spans = [];
     Object.keys(instance).map((key, index) => {
       spans.push((
@@ -43,9 +44,9 @@ export class GatewayPage extends React.Component<IGatewayPageProps> {
       ));
     });
     return spans;
-  }
+  };
 
-  badgeInfo = info => {
+  const badgeInfo = info => {
     if (info) {
       if (info.status === 'UP') {
         return <Badge color="success">{info.status}</Badge>;
@@ -55,9 +56,9 @@ export class GatewayPage extends React.Component<IGatewayPageProps> {
     } else {
       return <Badge color="warning">?</Badge>;
     }
-  }
+  };
 
-  instanceInfo = route => {
+  const instanceInfo = route => {
     if (route) {
       return (
         <Table striped responsive>
@@ -65,28 +66,26 @@ export class GatewayPage extends React.Component<IGatewayPageProps> {
             {route.serviceInstances.map((instance, i) =>
               <tr key={instance.instanceInfo + '-info'}>
                 <td><a href={instance.uri} target="_blank" rel="noopener noreferrer">{instance.uri}</a></td>
-                <td>{this.badgeInfo(instance.instanceInfo)}</td>
-                <td>{this.metadata(instance.metadata)}</td>
+                <td>{badgeInfo(instance.instanceInfo)}</td>
+                <td>{metadata(instance.metadata)}</td>
               </tr>
             )}
           </tbody>
         </Table>);
     }
-  }
+  };
 
-  gatewayRoutes = () => {
-    if (!this.props.isFetching) {
-      this.props.gatewayRoutes();
+  const gatewayRoutes = () => {
+    if (!isFetching) {
+        this.props.gatewayRoutes();
     }
-  }
+  };
 
-  render() {
-    const { routes, isFetching } = this.props;
     return (
       <div>
         <h2>Gateway</h2>
           <p>
-            <Button onClick={this.gatewayRoutes} color={isFetching ? 'danger' : 'primary'} disabled={isFetching}>
+            <Button onClick={gatewayRoutes} color={isFetching ? 'danger' : 'primary'} disabled={isFetching}>
               <FontAwesomeIcon icon="sync" />&nbsp;
               <Translate component="span" contentKey="health.refresh.button">Refresh</Translate>
             </Button>
@@ -105,20 +104,19 @@ export class GatewayPage extends React.Component<IGatewayPageProps> {
               <tr key={`routes-${i}`}>
                 <td>{route.path}</td>
                 <td>{route.serviceId}</td>
-                <td>{this.instanceInfo(route)}</td>
+                <td>{instanceInfo(route)}</td>
               </tr>
             )}
             </tbody>
           </Table>
 
         </div>
-    );
+  );
   }
 }
 
 const mapStoreToProps = storeState => ({
   routes: storeState.adminStore.gateway.routes,
-  account: storeState.authStore.account,
   isFetching: storeState.adminStore.loading,
   gatewayRoutes: storeState.adminStore.gatewayRoutes });
 

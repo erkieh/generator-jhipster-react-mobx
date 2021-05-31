@@ -16,29 +16,34 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -%>
-import { action, observable } from 'mobx';
+import { action, observable, makeObservable } from 'mobx';
 import BaseStore from 'app/shared/util/base-store';
+import {IRootStore} from "app/shared/stores";
 import axios, { AxiosResponse } from 'axios';
 
 export class ApplicationProfileStore extends BaseStore {
-    @observable public ribbonEnv = '';
-    @observable public isInProduction = true;
-    @observable public isSwaggerEnabled = false;
+      public ribbonEnv = '';
+      public isInProduction = true;
+      public isOpenAPIEnabled = false;
 
-    @action
     getProfile = this.readHandler(this.getProfileGen);
+
+    constructor(protected rootStore: IRootStore) {
+      super(rootStore);
+
+    makeObservable(this, {
+      ribbonEnv: observable,
+      isInProduction: observable,
+      isOpenAPIEnabled: observable,
+      getProfile: action,
+    });
+  }
 
     *getProfileGen() {
         const result: AxiosResponse = yield axios.get('/management/info');
-        const activeProfiles = result.data['activeProfiles'];
-        if (activeProfiles) {
-            const ribbonProfiles = result.data['display-ribbon-on-profiles'].split(',').filter(profile => activeProfiles.includes(profile));
-            if (ribbonProfiles.length !== 0) {
-                this.ribbonEnv = ribbonProfiles[0];
-            }
-            this.isInProduction = activeProfiles.includes('prod');
-            this.isSwaggerEnabled = activeProfiles.includes('swagger');
-        }
+        this.ribbonEnv = result.data['display-ribbon-on-profiles'];
+        this.isInProduction = result.data.activeProfiles.includes('prod');
+        this.isOpenAPIEnabled = result.data.activeProfiles.includes('api-docs');
         return result;
     }
 }

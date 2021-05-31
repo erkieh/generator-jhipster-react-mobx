@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2020 the original author or authors from the JHipster project.
+ Copyright 2013-2021 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -8,7 +8,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+      https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,29 +30,38 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { APP_DATE_FORMAT } from 'app/config/constants';
-import { ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
+import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
 import { IRootStore } from 'app/shared/stores';
 
-export interface IUserManagementProps extends StoreProps, RouteComponentProps<{}> {}
+export interface IUserManagementProps extends StoreProps, RouteComponentProps {}
 
 export const UserManagement = (props: IUserManagementProps) => {
-  const [pagination, setPagination] = useState(overridePaginationStateWithQueryParams(getSortState(props.location, ITEMS_PER_PAGE), props.location.search));
+  const [pagination, setPagination] = useState(overridePaginationStateWithQueryParams(getSortState(props.location, ITEMS_PER_PAGE, '<%= user.primaryKey.name %>'), props.location.search));
 
-  useEffect(() => {
-    props.getUsers(pagination.activePage - 1, pagination.itemsPerPage, `${pagination.sort},${pagination.order}`);
+  const getUsersFromProps = () => {
+    props.getUsersAsAdmin({
+        page: pagination.activePage - 1,
+        size: pagination.itemsPerPage,
+        sort: `${pagination.sort},${pagination.order}`,
+      }
+    );
     const endURL = `?page=${pagination.activePage}&sort=${pagination.sort},${pagination.order}`;
     if (props.location.search !== endURL) {
       props.history.push(`${props.location.pathname}${endURL}`);
     }
+  };
+
+  useEffect(() => {
+    getUsersFromProps();
   }, [pagination.activePage, pagination.order, pagination.sort]);
 
   useEffect(() => {
     const params = new URLSearchParams(props.location.search);
     const page = params.get('page');
-    const sort = params.get('sort');
-    if (page && sort) {
-      const sortSplit = sort.split(',');
+    const sortParam = params.get(SORT);
+    if (page && sortParam) {
+      const sortSplit = sortParam.split(',');
       setPagination({
         ...pagination,
         activePage: +page,
@@ -65,7 +74,7 @@ export const UserManagement = (props: IUserManagementProps) => {
   const sort = p => () =>
     setPagination({
       ...pagination,
-      order: pagination.order === 'asc' ? 'desc' : 'asc',
+      order: pagination.order === ASC ? DESC : ASC,
       sort: p
     });
 
@@ -75,20 +84,29 @@ export const UserManagement = (props: IUserManagementProps) => {
       activePage: currentPage
     });
 
+  const handleSyncList = () => {
+    getUsersFromProps();
+  };
+
   const toggleActive = user => () =>
     props.updateUser({
-      ...user,
-      activated: !user.activated
+        ...user,
+        activated: !user.activated
     });
 
-  const { users, account, match, totalItems } = props;
+  const { users, account, match, totalItems, loading } = props;
   return (
     <div>
-      <h2 id="user-management-page-heading">
+      <h2 id="user-management-page-heading" data-cy="userManagementPageHeading">
         <Translate contentKey="userManagement.home.title">Users</Translate>
-        <Link to={`${match.url}/new`} className="btn btn-primary float-right jh-create-entity">
-          <FontAwesomeIcon icon="plus" /> <Translate contentKey="userManagement.home.createLabel">Create a new user</Translate>
-        </Link>
+        <div className="d-flex justify-content-end">
+          <Button className="mr-2" color="info" onClick={handleSyncList} disabled={loading}>
+            <FontAwesomeIcon icon="sync" spin={loading} /> <Translate contentKey="userManagement.home.refreshListLabel">Refresh List</Translate>
+          </Button>
+          <Link to={`${match.url}/new`} className="btn btn-primary jh-create-entity">
+            <FontAwesomeIcon icon="plus" /> <Translate contentKey="userManagement.home.createLabel">Create a new user</Translate>
+          </Link>
+        </div>
       </h2>
       <Table responsive striped>
         <thead>
@@ -97,11 +115,11 @@ export const UserManagement = (props: IUserManagementProps) => {
             <th className="hand" onClick={sort('login')}><Translate contentKey="userManagement.login">Login</Translate><FontAwesomeIcon icon="sort" /></th>
             <th className="hand" onClick={sort('email')}><Translate contentKey="userManagement.email">Email</Translate><FontAwesomeIcon icon="sort" /></th>
             <th />
-            <%_ if (enableTranslation) { _%>
+<%_ if (enableTranslation) { _%>
             <th className="hand" onClick={sort('langKey')}><Translate contentKey="userManagement.langKey">Lang Key</Translate><FontAwesomeIcon icon="sort" /></th>
-            <%_ } _%>
+<%_ } _%>
             <th><Translate contentKey="userManagement.profiles">Profiles</Translate></th>
-            <%_ if (databaseType !== 'cassandra') { _%>
+<%_ if (!databaseTypeCassandra) { _%>
             <th className="hand" onClick={sort('createdDate')}><Translate contentKey="userManagement.createdDate">Created Date</Translate><FontAwesomeIcon icon="sort" /></th>
             <th className="hand" onClick={sort('lastModifiedBy')}>
               <Translate contentKey="userManagement.lastModifiedBy">Last Modified By</Translate><FontAwesomeIcon icon="sort" />
@@ -110,7 +128,7 @@ export const UserManagement = (props: IUserManagementProps) => {
               <Translate contentKey="userManagement.lastModifiedDate">Last Modified Date</Translate><FontAwesomeIcon icon="sort" />
             </th>
             <th />
-            <%_ } _%>
+<%_ } _%>
           </tr>
         </thead>
         <tbody>
@@ -138,9 +156,9 @@ export const UserManagement = (props: IUserManagementProps) => {
                   </Button>
                 )}
               </td>
-              <%_ if (enableTranslation) { _%>
+<%_ if (enableTranslation) { _%>
               <td>{user.langKey}</td>
-              <%_ } _%>
+<%_ } _%>
               <td>
                 {
                   user.authorities ? (
@@ -151,11 +169,17 @@ export const UserManagement = (props: IUserManagementProps) => {
                   ))) : null
                 }
               </td>
-              <%_ if (databaseType !== 'cassandra') { _%>
-              <td><TextFormat value={user.createdDate} type="date" format={APP_DATE_FORMAT} blankOnInvalid /></td>
+<%_ if (!databaseTypeCassandra) { _%>
+              <td>
+                {user.createdDate ? <TextFormat value={user.createdDate} type="date" format={APP_DATE_FORMAT} blankOnInvalid /> : null}
+              </td>
               <td>{user.lastModifiedBy}</td>
-              <td><TextFormat value={user.lastModifiedDate} type="date" format={APP_DATE_FORMAT} blankOnInvalid /></td>
-              <%_ } _%>
+              <td>
+                {user.lastModifiedDate ? (
+                  <TextFormat value={user.lastModifiedDate} type="date" format={APP_DATE_FORMAT} blankOnInvalid />
+                ) : null}
+              </td>
+<%_ } _%>
               <td className="text-right">
                 <div className="btn-group flex-btn-group-container">
                   <Button
@@ -183,8 +207,8 @@ export const UserManagement = (props: IUserManagementProps) => {
         }
         </tbody>
       </Table>
-      <%_ if (databaseType !== 'cassandra') { _%>
-        { props.totalItems ? (<div className={ users && users.length > 0 ? '' : 'd-none' }>
+<%_ if (!databaseTypeCassandra) { _%>
+        { totalItems ? (<div className={ users && users.length > 0 ? '' : 'd-none' }>
           <Row className="justify-content-center">
             <JhiItemCount page={pagination.activePage} total={totalItems} itemsPerPage={pagination.itemsPerPage} i18nEnabled />
           </Row>
@@ -194,11 +218,11 @@ export const UserManagement = (props: IUserManagementProps) => {
               onSelect={handlePagination}
               maxButtons={5}
               itemsPerPage={pagination.itemsPerPage}
-              totalItems={props.totalItems}
+              totalItems={totalItems}
             />
           </Row>
         </div>) : '' }
-      <%_ } _%>
+<%_ } _%>
     </div>
   );
 };
@@ -208,7 +232,9 @@ const mapStoreToProps = (storeState: IRootStore) => ({
   totalItems: storeState.userStore.totalItems,
   account: storeState.authStore.account,
   getUsers: storeState.userStore.getEntities,
-  updateUser: storeState.userStore.updateEntity });
+  loading: storeState.userStore.loading,
+  updateUser: storeState.userStore.updateEntity,
+  getUsersAsAdmin: storeState.userStore.getUsersAsAdmin });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 

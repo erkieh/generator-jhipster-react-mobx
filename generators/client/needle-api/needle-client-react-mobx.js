@@ -16,54 +16,54 @@
 
 const chalk = require('chalk');
 
-const needleClientBase = require('generator-jhipster/generators/client/needle-api/needle-client');
+const needleClientBase = require('generator-jhipster/generators/client/needle-api/needle-client-react');
 
-module.exports = class extends needleClientBase {
-    addEntityToModule(entityInstance, entityClass, entityName, entityFolderName, entityFileName) {
-        const indexModulePath = `${this.CLIENT_MAIN_SRC_DIR}app/entities/index.tsx`;
-        const indexStorePath = `${this.CLIENT_MAIN_SRC_DIR}app/shared/stores/createStore.ts`;
+module.exports = class NeedleClientReact extends needleClientBase {
+  addEntityToModule(entityInstance, entityClass, entityName, entityFolderName, entityFileName) {
+    const indexModulePath = `${this.CLIENT_MAIN_SRC_DIR}app/entities/index.tsx`;
+    const indexStorePath = `${this.CLIENT_MAIN_SRC_DIR}app/shared/stores/createStore.ts`;
 
-        const errorMessage = path =>
-            `${chalk.yellow('Reference to ') + entityInstance + entityClass + entityFolderName + entityFileName} ${chalk.yellow(
-                `not added to ${path}.\n`
-            )}`;
+    const errorMessage = path =>
+      `${chalk.yellow('Reference to ') + entityInstance + entityClass + entityFolderName + entityFileName} ${chalk.yellow(
+        `not added to ${path}.\n`
+      )}`;
 
-        const indexAddRouteImportRewriteFileModel = this.generateFileModel(
-            indexModulePath,
-            'jhipster-needle-add-route-import',
-            this.generator.stripMargin(`|import ${entityName} from './${entityFolderName}';`)
-        );
-        this.addBlockContentToFile(indexAddRouteImportRewriteFileModel, errorMessage(indexModulePath));
+    const indexAddRouteImportRewriteFileModel = this.generateFileModel(
+      indexModulePath,
+      'jhipster-needle-add-route-import',
+      this.generator.stripMargin(`|import ${entityName} from './${entityFolderName}';`)
+    );
+    this.addBlockContentToFile(indexAddRouteImportRewriteFileModel, errorMessage(indexModulePath));
 
-        const indexAddRoutePathRewriteFileModel = this.generateFileModel(
-            indexModulePath,
-            'jhipster-needle-add-route-path',
-            this.generator.stripMargin(`|<ErrorBoundaryRoute path={\`\${match.url}${entityFileName}\`} component={${entityName}} />`)
-        );
-        this.addBlockContentToFile(indexAddRoutePathRewriteFileModel, errorMessage(indexModulePath));
+    const indexAddRoutePathRewriteFileModel = this.generateFileModel(
+      indexModulePath,
+      'jhipster-needle-add-route-path',
+      this.generator.stripMargin(`|<ErrorBoundaryRoute path={\`\${match.url}${entityFileName}\`} component={${entityName}} />`)
+    );
+    this.addBlockContentToFile(indexAddRoutePathRewriteFileModel, errorMessage(indexModulePath));
 
-        const storeAddImportRewriteFileModel = this.generateFileModel(
-            indexStorePath,
-            'jhipster-needle-add-store-import', // prettier-ignore
-            this.generator.stripMargin(`|// prettier-ignore
+    const storeAddImportRewriteFileModel = this.generateFileModel(
+      indexStorePath,
+      'jhipster-needle-add-store-import', // prettier-ignore
+      this.generator.stripMargin(`|// prettier-ignore
                     |import ${entityInstance}, {
                     |  ${entityName}Store
                     |} from 'app/entities/${entityFolderName}/${entityFileName}.store';`)
-        );
-        this.addBlockContentToFile(storeAddImportRewriteFileModel, errorMessage(indexStorePath));
+    );
+    this.addBlockContentToFile(storeAddImportRewriteFileModel, errorMessage(indexStorePath));
 
-        const storeAddTypeRewriteFileModel = this.generateFileModel(
-            indexStorePath,
-            'jhipster-needle-add-store-field',
-            this.generator.stripMargin(`|  readonly ${entityInstance}Store: ${entityName}Store;`)
-        );
-        this.addBlockContentToFile(storeAddTypeRewriteFileModel, errorMessage(indexStorePath));
+    const storeAddTypeRewriteFileModel = this.generateFileModel(
+      indexStorePath,
+      'jhipster-needle-add-store-field',
+      this.generator.stripMargin(`|  readonly ${entityInstance}Store: ${entityName}Store;`)
+    );
+    this.addBlockContentToFile(storeAddTypeRewriteFileModel, errorMessage(indexStorePath));
 
-        const storeAddCombineRewriteFileModel = this.generateFileModel(
-            indexStorePath,
-            'jhipster-needle-add-store-init',
-            this.generator.stripMargin(`|  rootStore.${entityInstance}Store = new ${entityName}Store(rootStore);`)
-        );
-        this.addBlockContentToFile(storeAddCombineRewriteFileModel, errorMessage(indexStorePath));
-    }
+    const storeAddCombineRewriteFileModel = this.generateFileModel(
+      indexStorePath,
+      'jhipster-needle-add-store-init',
+      this.generator.stripMargin(`|  rootStore.${entityInstance}Store = new ${entityName}Store(rootStore);`)
+    );
+    this.addBlockContentToFile(storeAddCombineRewriteFileModel, errorMessage(indexStorePath));
+  }
 };

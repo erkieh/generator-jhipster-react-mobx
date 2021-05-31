@@ -23,7 +23,7 @@ export class PaginationCrudStore<T> extends BaseCrudStore<T> {
     super(rootStore, apiUrl, settings);
   }
 
-  *getAll(page, size, sort) {
+  *getAll({page, size, sort}) {
     this.lastUrl = `${this.apiUrl}${sort ? `?page=${page}&size=${size}&sort=${sort}` : ''}`;
     return yield* this.getAllFromLastUrl();
   }

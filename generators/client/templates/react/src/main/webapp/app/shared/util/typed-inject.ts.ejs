@@ -19,7 +19,7 @@ import {IRootStore} from 'app/shared/stores';
 import {MobXProviderContext} from 'mobx-react';
 import React from 'react';
 
-export const connect = (grabStoresFn: (param: IRootStore | {}, any) => any) => {
+export const connect = (grabStoresFn: (param: IRootStore | Record<string, never>, any) => any) => {
   return (baseComponent) => {
     const component = ownProps => {
       const store = React.useContext(MobXProviderContext) as IRootStore;

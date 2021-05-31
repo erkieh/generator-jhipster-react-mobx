@@ -19,13 +19,13 @@ import { IRootStore } from 'app/shared/stores';
 import BaseCrudStore from 'app/shared/util/base-crud-store';
 
 export class CrudStore<T> extends BaseCrudStore<T> {
-  links: { [key: string]: number };
+  links: { [key: string]: number } = {};
 
   constructor(protected rootStore: IRootStore, protected apiUrl: string, protected settings = { clearOnUnobserved: false }) {
     super(rootStore, apiUrl, settings);
   }
 
-  *getAll(page, size, sort) {
+  *getAll({ page, size, sort }) {
     return yield* this.getAllFromLastUrl();
   }
 

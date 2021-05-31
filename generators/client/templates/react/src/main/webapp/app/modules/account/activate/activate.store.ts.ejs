@@ -14,19 +14,30 @@
  limitations under the License.
 -%>
 
-import { action, observable } from 'mobx';
+import { action, observable, makeObservable } from 'mobx';
 import axios, { AxiosResponse } from 'axios';
 import { IUser } from 'app/shared/model/user.model';
 import BaseStore from 'app/shared/util/base-store';
+import {IRootStore} from "app/shared/stores";
 
 export class ActivateStore extends BaseStore {
-    @observable public activationSuccess = false;
-    @observable public activationFailure = false;
+      public activationSuccess = false;
+      public activationFailure = false;
 
-    @action
     activateAction = this.readHandler(this.activateActionGen);
 
-    @action.bound
+    constructor(protected rootStore: IRootStore) {
+      super(rootStore);
+
+    makeObservable(this, {
+        activationSuccess: observable,
+        activationFailure: observable,
+        activateAction: action,
+        reset: action.bound,
+    });
+  }
+
+
     reset() {
         this.activationSuccess = false;
         this.activationFailure = false;
@@ -34,7 +45,7 @@ export class ActivateStore extends BaseStore {
 
     * activateActionGen(key) {
         try {
-            const result: AxiosResponse = yield axios.get('<%= apiUaaPath %>/api/activate?key=' + key);
+            const result: AxiosResponse = yield axios.get('/api/activate?key=' + key);
             this.activationSuccess = true;
             return result;
         } catch (e) {
