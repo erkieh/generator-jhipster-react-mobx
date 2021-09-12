@@ -14,7 +14,7 @@ This is a [JHipster](https://www.jhipster.tech/) blueprint, that is meant to be 
 
 As this is a [JHipster](https://www.jhipster.tech/) blueprint, we expect you have JHipster and its related tools already installed:
 
--   [Installing JHipster](https://www.jhipster.tech/installation/)
+- [Installing JHipster](https://www.jhipster.tech/installation/)
 
 # Installation
 
