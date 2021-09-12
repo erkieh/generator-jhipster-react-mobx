@@ -1,217 +1,101 @@
-# jhipster
+# generator-jhipster-react-mobx
 
-This application was generated using JHipster 7.1.0, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v7.1.0](https://www.jhipster.tech/documentation-archive/v7.1.0).
+[![NPM version][npm-image]][npm-url] [![Dependency Status][daviddm-image]][daviddm-url]
 
-## Development
+![Generator](https://github.com/erkieh/generator-jhipster-react-mobx/workflows/Generator/badge.svg) ![React](https://github.com/erkieh/generator-jhipster-react-mobx/workflows/React/badge.svg)
 
-Before you can build this project, you must install and configure the following dependencies on your machine:
+> JHipster blueprint, React blueprint with Mobx for state management
 
-1. [Node.js][]: We use Node to run a development web server and build the project.
-   Depending on your system, you can install Node either from source or as a pre-packaged bundle.
+# Introduction
 
-After installing Node, you should be able to run the following command to install development tools.
-You will only need to run this command when dependencies change in [package.json](package.json).
+This is a [JHipster](https://www.jhipster.tech/) blueprint, that is meant to be used in a JHipster application to generate a React web application with Mobx for state management
 
-```
-npm install
-```
+# Prerequisites
 
-We use npm scripts and [Angular CLI][] with [Webpack][] as our build system.
+As this is a [JHipster](https://www.jhipster.tech/) blueprint, we expect you have JHipster and its related tools already installed:
 
-Run the following commands in two separate terminals to create a blissful development experience where your browser
-auto-refreshes when files change on your hard drive.
+-   [Installing JHipster](https://www.jhipster.tech/installation/)
 
-```
-./mvnw
-npm start
-```
+# Installation
 
-Npm is also used to manage CSS and JavaScript dependencies used in this application. You can upgrade dependencies by
-specifying a newer version in [package.json](package.json). You can also run `npm update` and `npm install` to manage dependencies.
-Add the `help` flag on any command to see how you can use it. For example, `npm help update`.
+## With NPM
 
-The `npm run` command will list all of the scripts available to run for this project.
+To install this blueprint:
 
-### PWA Support
-
-JHipster ships with PWA (Progressive Web App) support, and it's turned off by default. One of the main components of a PWA is a service worker.
-
-The service worker initialization code is disabled by default. To enable it, uncomment the following code in `src/main/webapp/app/app.module.ts`:
-
-```typescript
-ServiceWorkerModule.register('ngsw-worker.js', { enabled: false }),
+```bash
+npm install -g generator-jhipster-react-mobx
 ```
 
-### Managing dependencies
+To update this blueprint:
 
-For example, to add [Leaflet][] library as a runtime dependency of your application, you would run following command:
-
-```
-npm install --save --save-exact leaflet
+```bash
+npm update -g generator-jhipster-react-mobx
 ```
 
-To benefit from TypeScript type definitions from [DefinitelyTyped][] repository in development, you would run following command:
+## With Yarn
 
-```
-npm install --save-dev --save-exact @types/leaflet
-```
+To install this blueprint:
 
-Then you would import the JS and CSS files specified in library's installation instructions so that [Webpack][] knows about them:
-Edit [src/main/webapp/app/app.module.ts](src/main/webapp/app/app.module.ts) file:
-
-```
-import 'leaflet/dist/leaflet.js';
+```bash
+yarn global add generator-jhipster-react-mobx
 ```
 
-Edit [src/main/webapp/content/scss/vendor.scss](src/main/webapp/content/scss/vendor.scss) file:
+To update this blueprint:
 
-```
-@import '~leaflet/dist/leaflet.css';
-```
-
-Note: There are still a few other things remaining to do for Leaflet that we won't detail here.
-
-For further instructions on how to develop with JHipster, have a look at [Using JHipster in development][].
-
-### Using Angular CLI
-
-You can also use [Angular CLI][] to generate some custom client code.
-
-For example, the following command:
-
-```
-ng generate component my-component
+```bash
+yarn global upgrade generator-jhipster-react-mobx
 ```
 
-will generate few files:
+# Usage
 
-```
-create src/main/webapp/app/my-component/my-component.component.html
-create src/main/webapp/app/my-component/my-component.component.ts
-update src/main/webapp/app/app.module.ts
-```
+To use this blueprint, run the below command
 
-## Building for production
-
-### Packaging as jar
-
-To build the final jar and optimize the jhipster application for production, run:
-
-```
-./mvnw -Pprod clean verify
+```bash
+jhipster --blueprint react-mobx
 ```
 
-This will concatenate and minify the client CSS and JavaScript files. It will also modify `index.html` so it references these new files.
-To ensure everything worked, run:
+## Running local Blueprint version for development
 
-```
-java -jar target/*.jar
-```
+During development of blueprint, please note the below steps. They are very important.
 
-Then navigate to [http://localhost:8080](http://localhost:8080) in your browser.
+1. Link your blueprint globally
 
-Refer to [Using JHipster in production][] for more details.
+Note: If you do not want to link the blueprint(step 3) to each project being created, use NPM instead of Yarn as yeoman doesn't seem to fetch globally linked Yarn modules. On the other hand, this means you have to use NPM in all the below steps as well.
 
-### Packaging as war
-
-To package your application as a war in order to deploy it to an application server, run:
-
-```
-./mvnw -Pprod,war clean verify
+```bash
+cd generator-jhipster-react-mobx
+npm link
 ```
 
-## Testing
+2. Link a development version of JHipster to your blueprint (optional: required only if you want to use a non-released JHipster version, like the master branch or your own custom fork)
 
-To launch your application's tests, run:
+You could also use Yarn for this if you prefer
 
-```
-./mvnw verify
-```
+```bash
+cd generator-jhipster
+npm link
 
-### Client tests
-
-Unit tests are run by [Jest][]. They're located in [src/test/javascript/](src/test/javascript/) and can be run with:
-
-```
-npm test
+cd generator-jhipster-react-mobx
+npm link generator-jhipster
 ```
 
-For more information, refer to the [Running tests page][].
+3. Create a new folder for the app to be generated and link JHipster and your blueprint there
 
-### Code quality
+```bash
+mkdir my-app && cd my-app
 
-Sonar is used to analyse code quality. You can start a local Sonar server (accessible on http://localhost:9001) with:
+npm link generator-jhipster-react-mobx
+npm link generator-jhipster (Optional: Needed only if you are using a non-released JHipster version)
 
-```
-docker-compose -f src/main/docker/sonar.yml up -d
-```
-
-Note: we have turned off authentication in [src/main/docker/sonar.yml](src/main/docker/sonar.yml) for out of the box experience while trying out SonarQube, for real use cases turn it back on.
-
-You can run a Sonar analysis with using the [sonar-scanner](https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner) or by using the maven plugin.
-
-Then, run a Sonar analysis:
+jhipster -d --blueprint generator-jhipster-react-mobx
 
 ```
-./mvnw -Pprod clean verify sonar:sonar
-```
 
-If you need to re-run the Sonar phase, please be sure to specify at least the `initialize` phase since Sonar properties are loaded from the sonar-project.properties file.
+# License
 
-```
-./mvnw initialize sonar:sonar
-```
+Apache-2.0 © [Erki Ehtla](https://github.com/erkieh)
 
-For more information, refer to the [Code quality page][].
-
-## Using Docker to simplify development (optional)
-
-You can use Docker to improve your JHipster development experience. A number of docker-compose configuration are available in the [src/main/docker](src/main/docker) folder to launch required third party services.
-
-For example, to start a postgresql database in a docker container, run:
-
-```
-docker-compose -f src/main/docker/postgresql.yml up -d
-```
-
-To stop it and remove the container, run:
-
-```
-docker-compose -f src/main/docker/postgresql.yml down
-```
-
-You can also fully dockerize your application and all the services that it depends on.
-To achieve this, first build a docker image of your app by running:
-
-```
-./mvnw -Pprod verify jib:dockerBuild
-```
-
-Then run:
-
-```
-docker-compose -f src/main/docker/app.yml up -d
-```
-
-For more information refer to [Using Docker and Docker-Compose][], this page also contains information on the docker-compose sub-generator (`jhipster docker-compose`), which is able to generate docker configurations for one or several JHipster applications.
-
-## Continuous Integration (optional)
-
-To configure CI for your project, run the ci-cd sub-generator (`jhipster ci-cd`), this will let you generate configuration files for a number of Continuous Integration systems. Consult the [Setting up Continuous Integration][] page for more information.
-
-[jhipster homepage and latest documentation]: https://www.jhipster.tech
-[jhipster 7.1.0 archive]: https://www.jhipster.tech/documentation-archive/v7.1.0
-[using jhipster in development]: https://www.jhipster.tech/documentation-archive/v7.1.0/development/
-[using docker and docker-compose]: https://www.jhipster.tech/documentation-archive/v7.1.0/docker-compose
-[using jhipster in production]: https://www.jhipster.tech/documentation-archive/v7.1.0/production/
-[running tests page]: https://www.jhipster.tech/documentation-archive/v7.1.0/running-tests/
-[code quality page]: https://www.jhipster.tech/documentation-archive/v7.1.0/code-quality/
-[setting up continuous integration]: https://www.jhipster.tech/documentation-archive/v7.1.0/setting-up-ci/
-[node.js]: https://nodejs.org/
-[webpack]: https://webpack.github.io/
-[angular cli]: https://cli.angular.io/
-[browsersync]: https://www.browsersync.io/
-[jest]: https://facebook.github.io/jest/
-[jasmine]: https://jasmine.github.io/2.0/introduction.html
-[leaflet]: https://leafletjs.com/
-[definitelytyped]: https://definitelytyped.org/
+[npm-image]: https://img.shields.io/npm/v/generator-jhipster-react-mobx.svg
+[npm-url]: https://npmjs.org/package/generator-jhipster-react-mobx
+[daviddm-image]: https://david-dm.org/erkieh/generator-jhipster-react-mobx.svg?theme=shields.io
+[daviddm-url]: https://david-dm.org/erkieh/generator-jhipster-react-mobx
