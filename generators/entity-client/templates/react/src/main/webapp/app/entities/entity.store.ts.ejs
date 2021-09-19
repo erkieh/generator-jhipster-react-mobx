@@ -40,11 +40,10 @@ import <%= storeClass %> from '<%= storeClassFile %>';
 <%_ if (searchEngine === 'elasticsearch') { _%>
 import { ICrudSearchAction } from 'app/shared/util/jhipster-types';
 <%_ } _%>
-import { SERVER_API_URL } from 'app/config/constants';
 
-const apiUrl = <% if (applicationType === 'gateway' && locals.microserviceName) { %>'/<%= microserviceName.toLowerCase() %><% } else if (authenticationType === 'uaa') { %>'<% } else { %>SERVER_API_URL + '<% } %>/api/<%= entityApiUrl %>';
-<%_ if (searchEngine === 'elasticsearch') { _%>
-const apiSearchUrl = <% if (applicationType === 'gateway' && locals.microserviceName) { %>'/<%= microserviceName.toLowerCase() %>/<% } else if (authenticationType === 'uaa') { %>'<% } else { %>SERVER_API_URL + '<% } %>/api/_search/<%= entityApiUrl %>';
+const apiUrl = '<% if (applicationTypeGateway && locals.microserviceName) { %>services/<%= microserviceName.toLowerCase() %>/<% } %>api/<%= entityApiUrl %>';
+<%_ if (searchEngine) { _%>
+const apiSearchUrl = '<% if (applicationTypeGateway && locals.microserviceName) { %>services/<%= microserviceName.toLowerCase() %>/<% } %>api/_search/<%= entityApiUrl %>';
 <%_ } _%>
 
 export class <%= entityReactName %>Store extends <%= storeClass %><I<%= entityReactName %>> {
