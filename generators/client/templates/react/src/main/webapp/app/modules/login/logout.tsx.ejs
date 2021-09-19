@@ -22,7 +22,6 @@ import { connect } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/shared/stores';
 
 export interface ILogoutProps extends StoreProps {
-  idToken: string;
   logoutUrl: string;
 }
 
@@ -44,7 +43,6 @@ export const Logout = (props: ILogoutProps) => {
 
 const mapStoreToProps = (storeState: IRootStore) => ({
   logoutUrl: storeState.authStore.logoutUrl,
-  idToken: storeState.authStore.idToken,
   logout: storeState.authStore.logout });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

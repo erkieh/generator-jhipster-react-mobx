@@ -41,7 +41,6 @@ export class AuthStore extends BaseStore {
       public account: any = {};
       public redirectMessage: string = null;
       public sessionHasBeenFetched = false;
-      public idToken: string = null;
       public logoutUrl: string = null;
     <%_ if (authenticationType !== 'oauth2') { _%>
       public loginSuccess = false;
@@ -70,7 +69,6 @@ export class AuthStore extends BaseStore {
           account: observable,
           redirectMessage: observable,
           sessionHasBeenFetched: observable,
-          idToken: observable,
           logoutUrl: observable,
           loginSuccess: observable,
           loginError: observable,
@@ -90,7 +88,6 @@ export class AuthStore extends BaseStore {
       this.account = {};
       this.redirectMessage = null;
       this.sessionHasBeenFetched = false;
-      this.idToken = null;
       this.logoutUrl = null;
 <%_ if (authenticationType !== 'oauth2') { _%>
       this.loginSuccess = false;
@@ -162,7 +159,6 @@ export class AuthStore extends BaseStore {
 <%_ if (authenticationType !== 'oauth2') { _%>
       this.showModalLogin = true;
 <%_ } else { _%>
-      this.idToken = result.data.idToken,
       this.logoutUrl = result.data.logoutUrl
 <%_ } _%>
       return result;

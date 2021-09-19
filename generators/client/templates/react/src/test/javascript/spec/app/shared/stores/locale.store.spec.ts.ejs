@@ -42,7 +42,7 @@ describe('Locale store tests', () => {
       part<AxiosResponse>({ data })
     );
     await store.setLocale('en');
-    expect(axiosMock.get).toBeCalledWith(`i18n/en.json?buildTimestamp=${process.env.BUILD_TIMESTAMP}`, { baseURL: '' });
+    expect(axiosMock.get).toBeCalledWith(`i18n/en.json?_=${I18N_HASH}`, { baseURL: '' });
     expect(TranslatorContext.registerTranslations).toBeCalledWith('en', data);
     expect(TranslatorContext.setLocale).toBeCalledWith('en');
     expect(store.currentLocale).toBe('en');
