@@ -16,7 +16,6 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -%>
-import { hot } from 'react-hot-loader';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'mobx-react';
@@ -62,4 +61,4 @@ const render = Component =>
     rootEl
   );
 
-hot(render(AppComponent));
+render(AppComponent);
