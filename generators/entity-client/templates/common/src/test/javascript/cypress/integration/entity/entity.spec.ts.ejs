@@ -74,7 +74,7 @@ describe('<%= entityClass %> e2e test', () => {
     cy.getEntityHeading('<%= entityClass %>').should('exist');
     cy.url().should('match', <%= entityInstance %>PageUrlPattern);
   });
-
+/*
   it('should load details <%= entityClass %> page', function() {
     cy.visit(<%= entityInstance %>PageUrl);
     cy.wait('@entitiesRequest').then(({ response }) => {
@@ -90,7 +90,7 @@ describe('<%= entityClass %> e2e test', () => {
     });
     cy.url().should('match', <%= entityInstance %>PageUrlPattern);
   });
-
+*/
 <%_ if (!readOnly) { _%>
   it('should load create <%= entityClass %> page', () => {
     cy.visit(<%= entityInstance %>PageUrl);
@@ -104,7 +104,7 @@ describe('<%= entityClass %> e2e test', () => {
     });
     cy.url().should('match', <%= entityInstance %>PageUrlPattern);
   });
-
+/*
   it('should load edit <%= entityClass %> page', function() {
     cy.visit(<%= entityInstance %>PageUrl);
     cy.wait('@entitiesRequest').then(({ response }) => {
@@ -121,7 +121,7 @@ describe('<%= entityClass %> e2e test', () => {
     });
     cy.url().should('match', <%= entityInstance %>PageUrlPattern);
   });
-
+*/
   it<%= skipCreateTest %>('should create an instance of <%= entityClass %>', () => {
     cy.visit(<%= entityInstance %>PageUrl);
     cy.get(entityCreateButtonSelector).click({force: true});
