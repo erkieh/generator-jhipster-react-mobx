@@ -32,7 +32,7 @@ export class LocaleStore {
 
   async setLocale(locale) {
     if (!Object.keys(TranslatorContext.context.translations).includes(locale)) {
-      const response = await axios.get(`i18n/${locale}.json?buildTimestamp=${process.env.BUILD_TIMESTAMP}`, { baseURL: '' });
+      const response = await axios.get(`i18n/${locale}.json?_=${I18N_HASH}`, { baseURL: '' });
       TranslatorContext.registerTranslations(locale, response.data);
     }
     if (this.currentLocale !== locale) {

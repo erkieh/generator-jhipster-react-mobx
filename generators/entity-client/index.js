@@ -31,13 +31,13 @@ const NeedleClientReact = require('../client/needle-api/needle-client-react-mobx
 let useBlueprints;
 
 module.exports = class extends BaseBlueprintGenerator {
-  constructor(args, opts) {
-    super(args, opts);
-    this.entity = opts.context;
+  constructor(args, options, features) {
+    super(args, options, features);
 
-    this.jhipsterContext = opts.jhipsterContext || opts.context;
+    this.entity = this.options.context;
+    this.jhipsterContext = this.options.jhipsterContext || this.options.context;
 
-    useBlueprints = !this.fromBlueprint && this.instantiateBlueprints(GENERATOR_ENTITY_CLIENT, { context: opts.context });
+    useBlueprints = !this.fromBlueprint && this.instantiateBlueprints(GENERATOR_ENTITY_CLIENT, { context: this.options.context });
   }
 
   // Public API method used by the getter and also by Blueprints

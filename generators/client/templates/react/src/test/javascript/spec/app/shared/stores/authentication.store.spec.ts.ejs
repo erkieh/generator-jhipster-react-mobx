@@ -30,7 +30,6 @@ const localStorageMock = localStorage as jest.Mocked<typeof localStorage>;
 describe('Authentication store tests', () => {
   const initialState = {
     account: {},
-    idToken: null,
     isAuthenticated: false,
     loading: false,
     loginError: false,

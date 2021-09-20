@@ -22,19 +22,15 @@ import { connect } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/shared/stores';
 
 export interface ILogoutProps extends StoreProps {
-  idToken: string;
   logoutUrl: string;
 }
 
 export const Logout = (props: ILogoutProps) => {
   useLayoutEffect(() => {
     props.logout();
-    const { logoutUrl, idToken } = props;
+    const { logoutUrl } = props;
     if (logoutUrl) {
-      // if Keycloak, logoutUrl has protocol/openid-connect in it
-      window.location.href = logoutUrl.includes('/protocol')
-        ? logoutUrl + '?redirect_uri=' + window.location.origin
-        : logoutUrl + '?id_token_hint=' + idToken + '&post_logout_redirect_uri=' + window.location.origin;
+      window.location.href = logoutUrl;
     }
   });
 
@@ -47,7 +43,6 @@ export const Logout = (props: ILogoutProps) => {
 
 const mapStoreToProps = (storeState: IRootStore) => ({
   logoutUrl: storeState.authStore.logoutUrl,
-  idToken: storeState.authStore.idToken,
   logout: storeState.authStore.logout });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
