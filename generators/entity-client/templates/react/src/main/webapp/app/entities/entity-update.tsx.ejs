@@ -126,7 +126,7 @@ const updateSuccess = props.updateSuccess;
 <%_ otherEntityActions.forEach(val => { _%>
     props.<%= val.action %>({});
 <%_ }) _%>
-  }, []);
+  }, [props.match.params.id]);
 
   useEffect(() => {
     if (updateSuccess) {

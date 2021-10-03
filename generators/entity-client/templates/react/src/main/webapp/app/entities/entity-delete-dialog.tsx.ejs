@@ -31,7 +31,7 @@ export const <%= entityReactName %>DeleteDialog = (props: I<%= entityReactName %
 
   useEffect(() => {
     props.getEntity(props.match.params.id);
-  }, []);
+  }, [props.match.params.id]);
 
   const <%= entityInstance %>Entity = props.<%= entityInstance %>Entity;
   const updateSuccess = props.updateSuccess;

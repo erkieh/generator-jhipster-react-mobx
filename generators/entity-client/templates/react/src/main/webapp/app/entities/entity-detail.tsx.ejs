@@ -45,7 +45,7 @@ export interface I<%= entityReactName %>DetailProps extends StoreProps, RouteCom
 export const <%= entityReactName %>Detail = (props: I<%= entityReactName %>DetailProps) => {
   useEffect(() => {
     props.getEntity(props.match.params.id);
-  }, []);
+  }, [props.match.params.id]);
 
   const <%= entityInstance %>Entity = props.<%= entityInstance %>Entity
   return (
