@@ -14,7 +14,7 @@
  limitations under the License.
 -%>
 
-import { flow, observable, makeObservable } from 'mobx';
+import { action, flow, observable, makeObservable } from 'mobx';
 import { IRootStore } from 'app/shared/stores';
 import { handleOperation, OperationStatus } from 'app/shared/util/operation-handler';
 import { responseFailure, responseSuccess } from 'app/config/notification-middleware-mobx';

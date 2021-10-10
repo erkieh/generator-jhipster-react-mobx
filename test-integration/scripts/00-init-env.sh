@@ -79,7 +79,7 @@ if [[ "$JHI_JDK" == "11" && "$JHI_GITHUB_CI" != "true" ]]; then
 fi
 
 # node version
-JHI_NODE_VERSION=14.17.1
+JHI_NODE_VERSION=14.17.6
 
 # npm version
 JHI_NPM_VERSION=7.18.1
