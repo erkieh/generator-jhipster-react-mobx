@@ -77,7 +77,7 @@ const mapStoreToProps = ({ <%= storeName %> }: IRootStore) => ({
   <%= entityInstance %>Entity: <%= storeName %>.entity,
   updateSuccess: <%= storeName %>.updateSuccess,
   getEntity: <%= storeName %>.getEntity,
-  resetUpdatingState: countryStore.resetUpdatingState,
+  resetUpdatingState: <%= storeName %>.resetUpdatingState,
   deleteEntity: <%= storeName %>.deleteEntity });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
