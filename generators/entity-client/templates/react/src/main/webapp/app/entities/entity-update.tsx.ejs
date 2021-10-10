@@ -131,6 +131,7 @@ const updateSuccess = props.updateSuccess;
   useEffect(() => {
     if (updateSuccess) {
       handleClose();
+      return props.resetUpdatingState;
     }
   }, [updateSuccess]);
 
@@ -401,6 +402,7 @@ const mapStoreToProps = (storeState: IRootStore) => ({
   getEntity: storeState.<%= storeName %>.getEntity,
   updateEntity: storeState.<%= storeName %>.updateEntity,
   createEntity: storeState.<%= storeName %>.createEntity,
+  resetUpdatingState: <%= storeName %>.resetUpdatingState,
   reset: storeState.<%= storeName %>.reset
 });
 
