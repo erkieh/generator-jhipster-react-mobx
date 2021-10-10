@@ -43,6 +43,7 @@ export const <%= entityReactName %>DeleteDialog = (props: I<%= entityReactName %
   useEffect(() => {
     if (updateSuccess) {
       handleClose();
+      return props.resetUpdatingState;
     }
   }, [updateSuccess]);
 
@@ -76,6 +77,7 @@ const mapStoreToProps = ({ <%= storeName %> }: IRootStore) => ({
   <%= entityInstance %>Entity: <%= storeName %>.entity,
   updateSuccess: <%= storeName %>.updateSuccess,
   getEntity: <%= storeName %>.getEntity,
+  resetUpdatingState: countryStore.resetUpdatingState,
   deleteEntity: <%= storeName %>.deleteEntity });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

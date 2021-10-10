@@ -33,13 +33,18 @@ export class BaseStore {
       loading: observable,
       errorMessage: observable,
       updating: observable,
-      updateSuccess: observable
+      updateSuccess: observable,
+      resetUpdatingState: action,
     });
   }
 
   protected resetBase() {
     this.loading = false;
     this.errorMessage = null;
+    this.resetUpdatingState();
+  }
+
+  resetUpdatingState = () => {
     this.updating = false;
     this.updateSuccess = false;
   }
