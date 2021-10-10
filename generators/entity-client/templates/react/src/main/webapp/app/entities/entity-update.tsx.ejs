@@ -402,7 +402,7 @@ const mapStoreToProps = (storeState: IRootStore) => ({
   getEntity: storeState.<%= storeName %>.getEntity,
   updateEntity: storeState.<%= storeName %>.updateEntity,
   createEntity: storeState.<%= storeName %>.createEntity,
-  resetUpdatingState: <%= storeName %>.resetUpdatingState,
+  resetUpdatingState: storeState.<%= storeName %>.resetUpdatingState,
   reset: storeState.<%= storeName %>.reset
 });
 
